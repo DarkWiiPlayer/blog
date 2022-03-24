@@ -1,0 +1,1 @@
+: foreach *.skooma.yue |> yue %f -o %o |> %B

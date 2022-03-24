@@ -1,0 +1,15 @@
+import output from require 'params'
+
+(...) =>
+	content, head_content = @(...)
+	return render.html(html {
+		lang: "english"
+		head {
+			link rel: "stylesheet", href: "/#{output}/css/site.css"
+			meta charset: "UTF-8"
+			head_content
+		}
+		body {
+			content
+		}
+	})

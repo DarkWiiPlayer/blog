@@ -1,0 +1,6 @@
+import output from require 'params'
+
+link = =>
+	a @title, href: "/"..output..@uri
+
+(prefix) => ul [li link post.head, prefix for post in *@], title "Index"
