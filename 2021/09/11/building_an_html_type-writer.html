@@ -1,0 +1,192 @@
+<html lang="english"><head><link href="/blog/css/site.css" rel="stylesheet"><meta charset="UTF-8"><title>Building an HTML Type-Writer</title><link href="/blog/css/post.css" rel="stylesheet"><link href="https://cdn.jsdelivr.net/gh/darkwiiplayer/js@cdaeac1/skooma.js" rel="modulepreload"><link href="https://cdn.jsdelivr.net/gh/darkwiiplayer/js@3724b3e/element.js" rel="modulepreload"></head><body><nav><ul><li><a href="/blog/">Index</a></li><li><a href="/blog/2021/11/20/an_introduction_tocoroutines.html">An Introduction to Coroutines</a></li><li><a href="/blog/2021/09/11/building_an_html_type-writer.html">Building an HTML Type-Writer</a></li><li><a href="/blog/2021/02/15/tabs_are_objectively_better_than_spaces_and_heres_why.html">Tabs are objectively better than spaces, and here's why</a></li><li><a href="/blog/2020/11/25/a_rant_on_change_and_the_good_old_times.html">A rant on change, and the good old times.</a></li><li><a href="/blog/2019/04/01/why_i_prefer_lua_to_ruby.html">Why I prefer Lua to Ruby</a></li></ul></nav><article><h1>Building an HTML Type-Writer</h1><h2>Backstory</h2>
+<p>A few weeks ago, I built a simple type-writer web component: a user would load a JavaScript module and define a <code>&lt;type-writer&gt;</code> element with several lines of text. The component would then type out the first line of text, delete it again and rotate it to the back of the list.</p>
+<pre><code class="language-html">&lt;type-writer&gt;
+	Here's a first line
+	And here's another
+	Only plain text supported
+&lt;/type-writer&gt;
+</code></pre>
+<p>This worked well for simple cases, but it was obviously very limited. What if you wanted one word to be emphazised? Or have a line-break? The obvious solution was to extend this component to reproduce an entire DOM-Subtree.</p>
+<p>Fast-forward to today, and I find this very nice <a href="https://dev.to/auroratide/a-typewriter-but-using-a-new-html-tag-60i">article</a> on Dev.to showing off a custom component that does just this. This made it clear: I couldn't just leave my component as it was; it had to be brought to the same level. And so I started coding...</p>
+<p>My aim for this article is to use this example to explain some of the nicer things one can do with web components without using any frameworks or libraries. Just one file of JS that runs out of the box in any modern browser.</p>
+<p>I'll be trying to reproduce my thought process to some extent, but won't be following the same timeline of when I built this, since features got added piece by piece as it tends to be with programming, and I'd much rather group them by the concepts they rely on.</p>
+<h2>Async</h2>
+<p>One of the first things I figured out while building this component was that object methods can be <code>async</code>. Of course they can, they're just functions, after all. But for whatever reason, I didn't expect to be able to just put <code>async</code> in front of a normal method definition, but apparently that works perfectly well.</p>
+<p>So why is this important? Well to slowly type out some text, one needs some sort of loop that can suspend its execution. Yes, one could also work with callbacks or promises, but it's 2021 and I just don't see a reason not to write blocking-style code instead using <code>async</code> and <code>await</code>.</p>
+<p>So that's the starting point: an <code>async run()</code>  method that contains the main animation loop.</p>
+<p>Since the only thing worth <code>await</code>ing in this case is a timeout, I needed a wrapper around <code>window.setTimeout</code>, which I put at the top of my file:</p>
+<pre><code class="language-js">const sleep = time =&gt; new Promise(done =&gt; setTimeout(done, time*1e3))
+</code></pre>
+<p>No magic here: simply create a new promise and resolve it after <code>time</code> seconds. Yes, seconds, the SI unit for time. We're writing code in the 21st century and floating point numbers have been around for long enough that there's no benefit in using milliseconds whatsoever other than being used to it. Even POSIX uses seconds for sleep timeouts, so that's what I'm doing.</p>
+<p>With that out of the way, here's what a very basic <code>run()</code> method would look like, before adding further features:</p>
+<pre><code class="language-js">async run() {
+	while (true) {
+		// Next item to type out
+		let subject = this.children[0]
+		// Make a copy in case the original changes while we're typing it
+		let content = subject.cloneNode(true)
+		// Rotate the subject to the back
+		subject.remove()
+		this.append(subject)
+
+		await this.typeElement(this.shadowRoot, content)
+		await this.emptyElement(this.shadowRoot)
+	}
+}
+</code></pre>
+<p>The important part here are the two functions at the end: These will take care of typing out our cloned element recursively, then deleting it again. The target will be a shadow DOM attached to the custom property in its <code>connectedCallback</code>.</p>
+<h2>Optional Looping</h2>
+<p>So now we have an infinite loop, which might not be what the user wants. We need an option to turn the looping on or off. This is actually quite easy though! After all, the loop is just an asynchronous function.</p>
+<pre><code class="language-js">if (!this.loop) return
+</code></pre>
+<p>So we can simply return from it at the end of the iteration. What's more, this means that we can disable looping at any moment, and the type-writer will finish the current iteration and then stop.
+To resume typing, we'd simply have to call the <code>run()</code> method again.</p>
+<p>But this leads us to another problem: what if we call <code>run()</code> while the loop is already running? To avoid this, I simply added a state variable to the class, and for user convenience, exposed it as read-only:</p>
+<pre><code class="language-js">#running
+get running() { return this.#running }
+
+// ...
+
+async run() {
+	while (true) {
+		if (this.running) return
+		this.#running = true
+		// The rest of the code
+		if (!this.loop) {
+			this.#running=false
+			return
+		}
+	}
+}
+</code></pre>
+<p>Now users can query the read-only property <code>TypeWriter.running</code> and they call <code>run()</code> a second time, it will simply return immediately.</p>
+<h2>Typing</h2>
+<p>The central part of the element is, of course, the part where it types out the contents. The biggest difficulty here is, that we don't deal with text, but a (potentially very deep) DOM subtree, and we need to type out characters one by one while reproducing the surrounding HTML structure; but we can't type out the HTML text because that's not visible to the user.</p>
+<p>A simple solution to this problem is a set of functions, one that loops over the HTML elements recursively and one that handles the actual text content of these elements.</p>
+<p>Starting with a function that handles HTML elements, the basic structure would look something like this:</p>
+<pre><code class="language-js">async typeElement(target, elem) {
+	for (let child of elem.childNodes) {
+		if (&quot;data&quot; in child) {
+			await this.typeText(target, child.textContent.replace(/\s+/g, ' '))
+		} else {
+			let copy = child.cloneNode(false)
+			target.append(copy)
+			await this.typeElement(copy, child)
+		}
+	}
+}
+</code></pre>
+<p>The only two things worth pointing out here are that, before passing the content of a text node to <code>typeText</code>, all clusters of whitespace are replaced with a single space to mimic how HTML is rendered anyway. This would mean <code>&lt;pre&gt;</code> nodes don't work, so that's something to put on a list of future improvements. The other noteworthy thing is that <code>&quot;data&quot; in child</code> is probably not the best way to check for text nodes, but it does work.</p>
+<p>For non-text nodes, the function inserts a shallow copy of the given node, appends it to the target and recursively calls itself.</p>
+<p>Of course, all function calls need an <code>await</code> keyword, as both <code>typeText</code> and <code>typeElement</code> are asynchronous.</p>
+<p>The <code>typeText</code> function is even simpler:</p>
+<pre><code class="language-js">async typeText(target, text) {
+	let node = document.createTextNode('')
+	target.append(node)
+	for (let char of text.split('')) {
+		node.appendData(char)
+		await sleep(this.type)
+	}
+}
+</code></pre>
+<p>all it needs to do is iterate over the string character-by-character and append them to the target node, sleeping for a certain time in between each character.</p>
+<h2>Deleting</h2>
+<p>Deleting of elements looks very similar to typing, except it has to be mirrored. For example, the <code>emptyText</code> method will have to remove characters from the back:</p>
+<pre><code class="language-js">async emptyText(target) {
+	while (target.data.length) {
+		target.data = target.data.slice(0, -1)
+		await sleep(this.back)
+	}
+}
+</code></pre>
+<p>and the <code>emptyElement</code> function will have to iterate over child elements backwards, deleting them after they have been emptied:</p>
+<pre><code class="language-js">async emptyElement(target) {
+	let children = target.childNodes
+	while (children.length) {
+		let child = children[children.length-1]
+		if (&quot;data&quot; in child) {
+			await this.emptyText(child)
+		} else {
+			await this.emptyElement(child)
+		}
+		child.remove()
+	}
+}
+</code></pre>
+<p>Other than this reversal, both methods look very similar to their typing counterparts; they recursively traverse the DOM subtree and act on each node.</p>
+<h2>Events</h2>
+<p>With the visible parts of the element being implemented now, what's left is to add a usable JavaScript interface. JavaScript has several mechanisms of handling events, but the ones most widely used nowadays are events and promises, each with their own strengths and weaknesses.</p>
+<p>Ideally, the API for the TypeWriter might look something like this:</p>
+<ul>
+<li>The Element has a series of Events describing state changes like &quot;finished typing&quot; or &quot;started erasing&quot;</li>
+<li>Each of these events dispatches an actual DOM Event that can be interacted with as usual.</li>
+<li>For convenience, for each of these events, the user can get a Promise that resolves the next time the event is emitted.</li>
+<li>For simpler cases, a user can embed event handling code in the HTML as with other events like <code>click</code> (via the <code>onclick</code> attribute) and many others.</li>
+</ul>
+<p>Since all of these features will be using variants of the same event names, that's the best place to start:</p>
+<pre><code class="language-js">static eventNames = [&quot;Typing&quot;, &quot;Typed&quot;, &quot;Erasing&quot;, &quot;Erased&quot;, &quot;Connected&quot;, &quot;Resumed&quot;]
+</code></pre>
+<p>Static Initialisation Blocks could be used to make looping over this static array and extending the class more readable; but since those aren't a thing yet, the code looks a bit more esoteric:</p>
+<pre><code class="language-js">static eventNames = [&quot;Typing&quot;, &quot;Typed&quot;, &quot;Erasing&quot;, &quot;Erased&quot;, &quot;Connected&quot;, &quot;Resumed&quot;].map(name =&gt; {
+	// do stuff with &quot;name&quot;
+	return name
+})
+</code></pre>
+<p>It's worth pointing out that this creates a new array containing the same elements as the first one, which is wasteful. Since this happens only once in a class definition, and the array isn't long, it won't effectively have any performance impact.</p>
+<p>Inside this loop, two things will happen:</p>
+<h3>Event Promises</h3>
+<p>For each of the known events, the class should have an attribute that returns a promise. Given the event name, this can be implemented quite easily with a bit of metaprogramming magic:</p>
+<pre><code class="language-js">Object.defineProperty(
+	TypeWriter.prototype, name.toLowerCase(),
+	{get() { return new Promise(resolve =&gt;this.addEventListener(
+		name.toLowerCase(),
+		(event) =&gt; resolve(event.detail), {once: true})
+	)}}
+)
+</code></pre>
+<p>Simply define a new property on the classes prototype with no setter and a getter that returns a new promise. It becomes a bit hard to read because the event-listener is added in the callback to the Promise constructor, but there's not really much magic going on other than the property definition.</p>
+<h3>HTML Attributes</h3>
+<p>This feature has two parts, only the first of which happens inside the event-name loop:</p>
+<h4>Getting a Function</h4>
+<pre><code class="language-js">Object.defineProperty(
+	TypeWriter.prototype,
+	`on${name}`,
+	{ get() {
+		return Function(this.getAttribute(`on${name}`))
+	}}
+)
+</code></pre>
+<p>Once again, a new property is defined on the class, but this time there's another bit of meta-programming going on: the getter for the property accesses one of the element's attributes and turns the string into a function.</p>
+<p>If, for example, a type-writer tag looks like this:</p>
+<pre><code class="language-html">&lt;type-writer onTyped=&quot;console.log(event, this)&quot;&gt;&lt;/type-writer&gt;
+</code></pre>
+<p>then accessing the <code>onTyped</code> property on the object would return a function that's equivalent to the following:</p>
+<pre><code class="language-js">function() {
+	console.log(event, this)
+}
+</code></pre>
+<h4>Calling the Handler</h4>
+<p>The second part is to call this html-defined event handler, which can easily be done by adding an event listener in the object's constructor:</p>
+<pre><code class="language-js">constructor() {
+	super()
+	TypeWriter.eventNames.forEach(name =&gt; {
+		this.addEventListener(name.toLowerCase(), event =&gt; this[`on${name}`](event))
+	})
+}
+</code></pre>
+<p>It simply loops over all the event names and adds a listener that makes use of the property to get a function and calls it. The <code>event</code> parameter passed to the event callback is just there as a hint that this is an event handler: it doesn't actually get uesd and can be turned into <code>_event</code> according to taste.</p>
+<h3>Emitting Events</h3>
+<p>Now the last part is to actually emit some events. For this, I used a simple helper method to reduce boilerplate:</p>
+<pre><code class="language-js">emit(description, detail=undefined) {
+	this.dispatchEvent(new CustomEvent(description.toLowerCase(), {detail}))
+}
+</code></pre>
+<p>There's not much to say about this; it's a very straight-forward helper method that can be called, for example, as <code>this.emit(&quot;typing&quot;, content)</code> right before the call to <code>typeElement</code> to signal that the type-writer is about to start typing some text.</p>
+<hr />
+<h2>Conclusion</h2>
+<p>So that's about it. There is, of course, a bunch more code dealing with the more boring technicalities, like skipping <code>&lt;style&gt;</code> tags when typing (as they are invisible anyway, and would appear as a random pause to the user if they were typed out), getters for delay-properties like <code>wait</code>, the time in seconds to wait after typing an element before starting to delete it, etc.</p>
+<p>I hope this article was of some use, specially in illustrating how meta-programming can be used to shorten repetitive code like the adding of event-handlers, which would otherwise have been a long list of <code>get onTyped() {...}</code> and <code>addEventListener(&quot;typed&quot;, ...)</code> lines in the class definition, as well as how a set of recursive functions can be used to very easily traverse a DOM subtree.</p>
+<p>I am aware that this example doesn't really target only one skill-level, as something like recursively traversing a tree is a lot more &quot;basic&quot; than dynamic property definitions and other meta-programming, but I hope that everyone can find at least one or two things they find helpful.</p>
+<p>And last but not least, <a href="https://github.com/DarkWiiPlayer/components/blob/master/TypeWriter.js">here's the actual code</a>, but keep in mind that I changed and ommitted a few things to make the code easier to follow in the article.</p>
+<p>What are your thoughts? Would you improve anything about this aproach? Have you ever found yourself using similar tools to solve a problem? Let me know in the comments and happy discussing! 💜</p>
+</article></body></html>

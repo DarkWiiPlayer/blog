@@ -1,0 +1,108 @@
+<html lang="english"><head><link href="/blog/css/site.css" rel="stylesheet"><meta charset="UTF-8"><title>Why I prefer Lua to Ruby</title><link href="/blog/css/post.css" rel="stylesheet"><link href="https://cdn.jsdelivr.net/gh/darkwiiplayer/js@cdaeac1/skooma.js" rel="modulepreload"><link href="https://cdn.jsdelivr.net/gh/darkwiiplayer/js@3724b3e/element.js" rel="modulepreload"></head><body><nav><ul><li><a href="/blog/">Index</a></li><li><a href="/blog/2021/11/20/an_introduction_tocoroutines.html">An Introduction to Coroutines</a></li><li><a href="/blog/2021/09/11/building_an_html_type-writer.html">Building an HTML Type-Writer</a></li><li><a href="/blog/2021/02/15/tabs_are_objectively_better_than_spaces_and_heres_why.html">Tabs are objectively better than spaces, and here's why</a></li><li><a href="/blog/2020/11/25/a_rant_on_change_and_the_good_old_times.html">A rant on change, and the good old times.</a></li><li><a href="/blog/2019/04/01/why_i_prefer_lua_to_ruby.html">Why I prefer Lua to Ruby</a></li></ul></nav><article><h1>Why I prefer Lua to Ruby</h1><p>So Lua and Ruby are two rather similar languages in many aspects. There's a lot of articles explaining what makes them so similar and many of the more superficial differences.</p>
+<p>Today I'd like to point out some reasons that have shaped my opinion on the two languages.</p>
+<p>I will risk sounding like a hater, but I'd like to point out that I don't particularly dislike Ruby. There's many positive things about it, but since I do prefer Lua, I just chose to point out some of its problems today.</p>
+<h1>Speed</h1>
+<p>It'd be easy to just say &quot;Lua fast, Lua good&quot; and be done with it. In reality though, things aren't always that easy.</p>
+<h3>File Size</h3>
+<p>The thing about Lua is, it's very small. Not only does this mean that it fits almost everywhere, but also that it loads very fast</p>
+<pre><code class="language-bash">&gt; time ruby -e 'puts &quot;hello&quot;'
+hello
+
+real	0m0.059s
+user	0m0.054s
+sys 	0m0.005s
+
+&gt; time lua -e 'print &quot;hello&quot;'
+hello
+
+real	0m0.003s
+user	0m0.003s
+sys 	0m0.001s
+</code></pre>
+<p>This only makes a difference when you're calling the executable many times in a row, but the difference does add up over time.</p>
+<hr />
+<h3>Functions vs. Methods</h3>
+<p>The next thing to consider is that, in Lua, functions are stored in variables, and are therefore easy to look up.</p>
+<p>Ruby, on the other hand, has to look up methods for everything. For short methods (let's say, adding two numbers) this can mean a significant overhead.</p>
+<pre><code class="language-bash">&gt; ruby -e 'puts self.class.ancestors'
+Object
+Kernel
+BasicObject
+</code></pre>
+<p>Even the main object every ruby script runs in inherits from 3 ancestors.</p>
+<p>It should be noted that Lua isn't immune to this problem. When writing object-oriented code, this also ends up happening. The difference is that in Lua the programmer must do this explicitly, while in Ruby it happens all the time.</p>
+<hr />
+<h3>Strings / Symbols</h3>
+<p>~~This may surprise some people, but Lua actually has a huge disadvantage to Ruby in terms of speed: It has no Strings in the way Ruby has them. All strings in Lua are automatically interned. Ruby has interned strings as well; it calls them <em>Symbols</em>.~~</p>
+<p>~~This has its upsides and, overall, was probably a smart decision, but it also means reading in a long text file takes much longer in Lua. Imagine calling <code>to_sym</code> on every line in Ruby.~~</p>
+<p><code>&lt;edit&gt;</code></p>
+<p>Since writing this post, I have double-checked this and discovered that I apparently misunderstood this or just remembered it incorrectly: Lua <em>does</em> intern all <strong>short</strong> strings by default, however, above a certain length, this doesn't happen anymore. Strings that are too long for interning don't get hashed immediately, but they do get hashed once it becomes necessary (for example when comparing them to another string or indexing a table) and will from then on use just use that hash.</p>
+<p>This pretty much means that, in most cases, Lua wins over Ruby even when working with long (but immutable) strings.</p>
+<p>However, the downside that Lua strings are immutable remains, and modifying a string means creating a new, modified copy of the string.</p>
+<p><code>&lt;/edit&gt;</code></p>
+<hr />
+<h3>Vararg functions</h3>
+<p>If I was asked which of the two languages had the powerful implementation of variadic functions, I'd 100% say Ruby. You can mix and match many kinds of syntactic constructs that capture additional arguments into both arrays and hashes.</p>
+<p>But, with great strength comes... not so great performance.
+Let's consider the following piece of code:</p>
+<pre><code class="language-ruby">def foo(bar, *rest)
+    do_something(bar)
+    do_something(*rest)
+end
+</code></pre>
+<p>Every time the foo method is called, ruby needs to instantiate a new array <code>rest</code> and collect the excess arguments into it. This ends up happening a lot and makes variadic methods very unsuited for code that needs to perform well.</p>
+<p>Consider the equivalent code in Lua:</p>
+<pre><code class="language-lua">function foo(bar, ...)
+    do_something(bar)
+    do_something(...)
+end
+</code></pre>
+<p>Here, there's no array involved. The function can just leave bar on the stack, call <code>do_something</code> telling it it has 1 argument, then pop bar from the stack and call <code>do_something</code> again, telling it how many items are left on the stack.</p>
+<p>This means writing functions like this is way more viable even when your code needs to run as fast as possible.</p>
+<hr />
+<h3>Mentality</h3>
+<p>One difference that probably makes a way larger difference than most people would assume is the difference in mentality between the two communities.</p>
+<p>When asked why Ruby is so great, the general response from its community will be something along the lines of &quot;Because it's fun to write!&quot;. Many Ruby examples out there seem to throw performance out the window before even starting. This isn't necessarily a bad thing, but it ultimately leads to people writing libraries that run way slower than they could.</p>
+<p>My experience with the Lua community has been vastly different. A simple google search brings up way more relevant and detailed information on how to improve performance in Lua than in Ruby, even though the latter has a much larger community that also seems to write way more about it.</p>
+<hr />
+<h3>LuaJIT</h3>
+<p>Lua is already very fast on its own. LuaJIT though, that's a completely different level. There have been examples where JITed Lua code can even run faster than equivalent C code, because the compiler sometimes has more awareness of the code it's optimizing (After all, it keeps track of the code as it's being executed)</p>
+<p>Ruby has made a huge step in the right direction with its own JIT Compiler, but that's still nowhere near the performance improvements of LuaJIT when compared to PUC Lua, the &quot;reference&quot; Lua implementation.</p>
+<hr />
+<h1>Simplicity</h1>
+<p>Leaving performance aside now, there's another reason why I consider simplicity a very positive feature of Lua: It's not only easy to learn, but also easy to master.</p>
+<h3>Modularity</h3>
+<p>This is probably one of the things I hate the most about Ruby. No matter how hard you try, you will never get rid of global state. At the very least you will have some modules and classes polluting the global environment, and there is no way to load a library into a contained space.</p>
+<p>This means, for example, that it's not possible to load two different versions of one library without having to go through its source code and renaming things everywhere.</p>
+<pre><code class="language-ruby">require 'some_class'
+
+foo = SomeClass.new # Where did this come from?!
+</code></pre>
+<p>In Lua, on the other hand, you can just rename the file and load it into another local. How things are called internally doesn't matter to the host program.</p>
+<pre><code class="language-lua">local someclass = require 'someclass'
+
+local foo = someclass.new()
+</code></pre>
+<hr />
+<h3>Side effects</h3>
+<p>Ruby tries to be as comfortable as possible for the developer. I often find myself wishing it didn't</p>
+<p>Consider the following example:</p>
+<pre><code class="language-ruby">require 'missile_cruiser'
+
+MissileCruiser.new.last_fired
+</code></pre>
+<p>What happens there? One would assume, the variable <code>last_fired</code> will return the last missile that was fired. Since we didn't fire one, it would be reasonable for this to be <code>nil</code>.</p>
+<p>But wait, what if it's a method?</p>
+<p>Maybe it will raise an error because we didn't fire any missile yet?</p>
+<p>Even worse, maybe some developer thought if we wanted to know about the last missile, we probably wanted to fire one, so the method just fires a missile and returns that one?</p>
+<p>This kind of thing happens often in Ruby. The lines between what is a value and what is code that gets executed are blurred.</p>
+<hr />
+<h3>(in)Consistencies</h3>
+<p>Try the following code in <code>irb</code>:</p>
+<pre><code class="language-ruby">puts 1/0
+puts 0/0
+puts 1.0/0
+puts 0.0/0
+</code></pre>
+<p>Things like that make a language (and, by extension, programs written in it) harder to understand at first glance, specially to newcomers. No language will ever be 100% consistent, but these inconsistencies should still be reduced whenever possible.</p>
+</article></body></html>

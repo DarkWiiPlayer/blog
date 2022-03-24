@@ -1,0 +1,11 @@
+body {
+	display: grid;
+	grid-template-columns: 1fr 60em 1fr;
+	gap: 2em;
+}
+nav {
+	grid-column: 1;
+}
+article {
+	grid-column: 2;
+}
