@@ -1,8 +1,10 @@
 local arrr = require 'arrr'
+local cmark = require 'cmark'
+local fun = require 'fun'
+local json = require 'cjson'
 local restia = require 'restia'
 local shapeshift = require 'shapeshift'
 local yaml = require 'lyaml'
-local cmark = require 'cmark'
 
 local params do
 	local is = shapeshift.is
@@ -36,6 +38,16 @@ local templates = restia.config.bind('templates', {
 	(require 'restia.config.skooma');
 })
 package.loaded.templates = templates
+
+-- General purpose utility functions
+
+local function split(str, pattern)
+	local result = {}
+	for item in str:gmatch(pattern) do
+		table.insert(result, item)
+	end
+	return result
+end
 
 local function read_post(file)
 	local content = io.open(file):read("*a")
@@ -83,6 +95,10 @@ for file in restia.utils.files(params.input, "%.md$") do
 
 	post.head.timestamp = parsedate(post.head.date)
 
+	if "string" == type(post.head.tags) then
+		post.head.tags = split(post.head.tags, "%a+")
+	end
+
 	post.head.slug = post.head.title
 		:gsub(' ', '_')
 		:lower()
@@ -114,5 +130,25 @@ tree["index.html"] = render("index", posts)
 if params.delete then
 	restia.utils.delete(params.output)
 end
+
+local function transform(tab)
+	return function(data)
+		local success, result = shapeshift.table(tab, "keep")(data)
+		return result
+	end
+end
+
+local function drop() return true, nil end
+
+-- Generate Post Metadata
+tree["posts.json"] = json.encode(
+	fun
+	.iter(posts)
+	:map(transform {
+		body = drop;
+		head = shapeshift.table({ file = drop }, 'keep');
+	})
+	:totable()
+)
 
 restia.utils.builddir(params.output, tree)
