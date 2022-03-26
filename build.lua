@@ -39,6 +39,11 @@ local templates = restia.config.bind('templates', {
 })
 package.loaded.templates = templates
 
+local pages = restia.config.bind('pages', {
+	(require 'restia.config.skooma');
+})
+package.loaded.pages = pages
+
 -- General purpose utility functions
 
 local function split(str, pattern)
@@ -117,6 +122,9 @@ end)
 local function render(name, ...)
 	return templates.main(templates[name], ...)
 end
+local function page(name, ...)
+	return templates.main(pages[name], ...)
+end
 
 -- Render Posts
 for idx, post in ipairs(posts) do
@@ -124,8 +132,6 @@ for idx, post in ipairs(posts) do
 
 	restia.utils.deepinsert(tree, post.path, body)
 end
-
-tree["index.html"] = render("index", posts)
 
 if params.delete then
 	restia.utils.delete(params.output)
@@ -150,5 +156,7 @@ tree["posts.json"] = json.encode(
 	})
 	:totable()
 )
+
+tree["index.html"] = page("index", posts, tree["posts.json"])
 
 restia.utils.builddir(params.output, tree)

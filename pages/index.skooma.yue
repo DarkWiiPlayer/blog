@@ -1,0 +1,9 @@
+import output from require 'params'
+
+link = =>
+	a @title, href: "/"..output..@uri
+
+(json) => (ul [li link post.head, prefix for post in *@]), {
+	title "Index"
+	script "window.posts = JSON.parse(`#{json}`)"
+}
