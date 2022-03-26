@@ -1,4 +1,5 @@
 import output from require 'params'
+import 'modules'
 
 (...) =>
 	head_content, body_content = @(...)
@@ -9,6 +10,7 @@ import output from require 'params'
 			link rel: "stylesheet", href: "/#{output}/css/site.css"
 			meta charset: "UTF-8"
 			head_content
+			[ link rel: "modulepreload", href: module.url for module in *modules when module.preload ]
 		}
 		body {
 			body_content

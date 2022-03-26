@@ -1,0 +1,3 @@
+name,preload,url
+skooma,false,https://cdn.jsdelivr.net/gh/darkwiiplayer/js@cdaeac1/skooma.js
+element,false,https://cdn.jsdelivr.net/gh/darkwiiplayer/js@3724b3e/element.js

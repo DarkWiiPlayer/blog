@@ -1,5 +1,6 @@
 local arrr = require 'arrr'
 local cmark = require 'cmark'
+local csv = require 'streamcsv'
 local fun = require 'fun'
 local json = require 'cjson'
 local restia = require 'restia'
@@ -62,6 +63,10 @@ local function read_post(file)
 		body = cmark.render_html(cmark.parse_document(body, #body, cmark.OPT_DEFAULT), cmark.OPT_DEFAULT);
 	}
 end
+
+-- Handle JS modules
+local modules = csv.file(io.open("modules.csv"), {header = true})
+package.loaded.modules = modules
 
 local posts = {}
 package.loaded.posts = posts
