@@ -1,11 +1,16 @@
 import output from require 'params'
 
-link = =>
-	a @title, href: "/"..output..@uri
+post = =>
+	blogPost {
+		name: @head.slug
+		a @head.title, href: "/"..output..@head.uri
+	}
 
 (json) => {
 	title "Index"
 	script "window.posts = JSON.parse(`#{json}`)"
+	script type: 'module', src: "/#{output}/javascript/BlogPost.js"
+	script type: 'module', src: "/#{output}/javascript/LocalDate.js"
 }, (
-	ul [li link post.head, prefix for post in *@])
+	ul [li post p for p in *@]
 )
