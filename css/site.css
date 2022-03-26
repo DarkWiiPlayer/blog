@@ -1,1 +1,6 @@
 @import url('reset.css');
+
+time.timestamp {
+	opacity: .6;
+	font-style: italic;
+}
