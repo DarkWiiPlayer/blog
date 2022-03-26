@@ -1,4 +1,4 @@
 #!/bin/sh
-tup
+tup || exit
 rm -rf blog/*
 lua build.lua --copy css --copy javascript --output blog
