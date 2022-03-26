@@ -3,7 +3,9 @@ import output from require 'params'
 link = =>
 	a @title, href: "/"..output..@uri
 
-(json) => (ul [li link post.head, prefix for post in *@]), {
+(json) => {
 	title "Index"
 	script "window.posts = JSON.parse(`#{json}`)"
-}
+}, (
+	ul [li link post.head, prefix for post in *@])
+)

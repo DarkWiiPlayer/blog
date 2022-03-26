@@ -2,16 +2,15 @@ import output from require 'params'
 
 url = (path) -> "/"..output..path
 
-(attributes) =>
-	{
-		nav {
-			ul {
-				li a "Index", href: url "/"
-				[li a post.head.title, href: url post.head.uri for post in *require("posts")]
-			}
+(attributes) => {
+	title attributes.title
+	link rel: "stylesheet", href: "/#{output}/css/post.css"
+}, {
+	nav {
+		ul {
+			li a "Index", href: url "/"
+			[li a post.head.title, href: url post.head.uri for post in *require("posts")]
 		}
-		article { h1(attributes.title), @ }
-	}, {
-		title attributes.title
-		link rel: "stylesheet", href: "/#{output}/css/post.css"
 	}
+	article { h1(attributes.title), @ }
+}

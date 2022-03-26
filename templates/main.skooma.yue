@@ -1,8 +1,9 @@
 import output from require 'params'
 
 (...) =>
-	content, head_content = @(...)
-	return render.html(html {
+	head_content, body_content = @(...)
+	body_content = head_content unless body_content
+	render.html(html {
 		lang: "english"
 		head {
 			link rel: "stylesheet", href: "/#{output}/css/site.css"
@@ -10,6 +11,6 @@ import output from require 'params'
 			head_content
 		}
 		body {
-			content
+			body_content
 		}
 	})
