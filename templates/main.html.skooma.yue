@@ -1,0 +1,16 @@
+import output from require 'params'
+import slotty from require 'skooma'
+import 'config'
+
+slots = slotty!
+
+content, data = select 1, ...
+html
+	lang: "english"
+	* head
+		* link rel: "stylesheet", href: "/#{output}/css/site.css"
+		* meta charset: "UTF-8"
+		* slots.head
+		* [ link rel: "modulepreload", href: module.url for module in *config.modules when module.preload ]
+	* body
+		* content slots, data
