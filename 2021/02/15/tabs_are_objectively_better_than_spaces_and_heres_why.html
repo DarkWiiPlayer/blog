@@ -1,36 +1,29 @@
-<html lang="english"><head><link href="/blog/css/site.css" rel="stylesheet"><meta charset="UTF-8"><title>Tabs are objectively better than spaces, and here's why</title><link href="/blog/css/post.css" rel="stylesheet"><link href="https://cdn.jsdelivr.net/gh/darkwiiplayer/js@cdaeac1/skooma.js" rel="modulepreload"><link href="https://cdn.jsdelivr.net/gh/darkwiiplayer/js@3724b3e/element.js" rel="modulepreload"></head><body><nav><ul><li><a href="/blog/">Index</a></li><li><a href="/blog/2021/11/20/an_introduction_tocoroutines.html">An Introduction to Coroutines</a></li><li><a href="/blog/2021/09/11/building_an_html_type-writer.html">Building an HTML Type-Writer</a></li><li><a href="/blog/2021/02/15/tabs_are_objectively_better_than_spaces_and_heres_why.html">Tabs are objectively better than spaces, and here's why</a></li><li><a href="/blog/2020/11/25/a_rant_on_change_and_the_good_old_times.html">A rant on change, and the good old times.</a></li><li><a href="/blog/2019/04/01/why_i_prefer_lua_to_ruby.html">Why I prefer Lua to Ruby</a></li></ul></nav><article><h1>Tabs are objectively better than spaces, and here's why</h1><h1>The Debate</h1>
+<html lang="english"><head><link href="/blog/css/site.css" rel="stylesheet"><link href="https://darkwiiplayer.github.io/css/all.css" rel="stylesheet"><link href="https://darkwiiplayer.github.io/css/schemes/talia.css" rel="stylesheet"><meta charset="UTF-8"><title>Tabs are objectively better than spaces, and here's why</title><link href="/blog/css/post.css" rel="stylesheet"></head><body><nav><ul><li><a href="/blog/">Index</a></li><li><a href="/blog/2022/03/16/what_is_css_scope_and_why_should_i_care.html">What is CSS @scope and why should I care?</a></li><li><a href="/blog/2021/11/20/an_introduction_tocoroutines.html">An Introduction to Coroutines</a></li><li><a href="/blog/2021/09/11/building_an_html_type-writer.html">Building an HTML Type-Writer</a></li><li><a href="/blog/2021/02/15/tabs_are_objectively_better_than_spaces_and_heres_why.html">Tabs are objectively better than spaces, and here's why</a></li><li><a href="/blog/2020/11/25/a_rant_on_change_and_the_good_old_times.html">A rant on change, and the good old times.</a></li><li><a href="/blog/2019/04/01/why_i_prefer_lua_to_ruby.html">Why I prefer Lua to Ruby</a></li></ul></nav><article><h1>Tabs are objectively better than spaces, and here's why</h1><h2>The Debate</h2>
 <p>This is probably one of the longest ongoing bikeshedding debates in the programming community: Should we indent our code with <strong>Tabs</strong> or with <strong>Spaces</strong>?</p>
 <p>In this post, I will do my best to explain why <strong>tabs</strong> are the right choice, not only in my personal opinion, but objectively.</p>
-<h1>Indentation</h1>
+<h2>Indentation</h2>
 <p>First of all, I want to define the scope of my argumentation: I am referring to <strong>indentation</strong>, not <strong>alignment</strong>.</p>
-<p>The former depends on semantics, the latter on word lengths. For obvious reasons, using tabs for alignment is not possible; whether alignment should be a thing at all (hint: it shouldn't) or how it should be achieved is a different debate and irrelevant for this article.</p>
-<h1>Semantics</h1>
+<p>The former depends on semantics, the latter on word lengths. For obvious reasons, using tabs for alignment is not possible; whether alignment should be a thing at all (hint: it shouldn't) or how it should be achieved is a different debate and irrelevant for this post.</p>
+<h2>Semantics</h2>
 <p>The most puritan argument for tabs is probably the semantic information they add to the code. I have never seen a real-world example where this matters, but as programmers we often like to obsess over using the right &quot;thing&quot;, be it a HTML element or an ASCII character.</p>
-<p>Just as with HTML, I suspect this might be relevant for users of screen-readers; if so, I'd like to hear about that in the comments.</p>
-<h1>Consistency</h1>
+<h2>Consistency</h2>
 <p>The main argument I've heard defending spaces is that code looks &quot;consistent&quot; everywhere. Whether you post your code on Stack-Overflow, GitHub Gists, or on your blog; it will always be indented by the same width.</p>
-<p>In the next section I will explain why that is actually a bad thing, but first I'd like to point out that this doesn't have any benefits either.</p>
 <p>Code is not visual art. The indentation width doesn't alter the codes meaning in any way and, unlike with alignment, changing it doesn't break the visual layout of the code.</p>
-<p>There is no reason whatsoever why another user reading my code on the internet should read it with the same indentation width that I wrote it in.</p>
-<h1>Customizability</h1>
-<p>On the contrary: forcing the reader to use the same indentation width as the author only takes away from their ability to read the code the way they want.</p>
-<p>As an example: I personally prefer a tab-width of 3 spaces, because 2 is just barely too short to follow through deeper nested blocks of code and 4 is one more space-width than I need, and thus one wasted character of line-width per indentation level.</p>
-<p>So the question is: Why would <em>you</em> have to read my code with such an awkward tab width, just because to my uncommon taste that seems like the right value?</p>
+<p><strong>There is no reason whatsoever why someone else reading my code should experience it with the same indentation width that I wrote it in.</strong></p>
+<h2>Customizability</h2>
+<p>I personally prefer a tab-width of three spaces. Two is just barely too short to follow through deeper nested blocks of code. Four is one more space-width than I need.</p>
+<p>So the question is: Why would <em>you</em> have to read my code with such an awkward tab width, just because to my uncommon taste <!-- raw HTML omitted --> that seems like the right value?</p>
 <p>The answer is, of course, you shouldn't. You should be able to read <em>my</em> code the way <em>you</em> prefer to read it.</p>
-<p>Just like we don't expect readers to use the same editor, with the same colour-scheme, the same font and the same font-size as us, we shouldn't expect anybody to use the exact same indentation-width.</p>
-<h1>Accessibility</h1>
+<p><strong>Everyone should be able to read code with their own preferred settings.</strong></p>
+<h2>Accessibility</h2>
 <p>So far I've looked at customizability as a convenience feature. I <em>like</em> 3-space indentation more, so I <em>want</em> to read code that way.</p>
-<p>What I haven't mentioned is how for some programmers, the right indentation width can make a huge difference in how well they are even able to read the code.</p>
-<p>There have been countless posts of visually impaired developers. For some, 2 spaces is just not enough indentation, making it unnecessarily hard to read code, others might need to use very large font sizes, and prefer shorter indentations to save screen space.</p>
-<p>And as I mentioned above, I don't even know how well screen readers deal with spaces as indentation, and would love to hear about it of anybody reading this has any experience with that.</p>
-<h1>Consistency (again, but differently)</h1>
+<p>But for some people it goes beyond just preference.</p>
+<p>I've seen posts and comments of quite a few developers with poor eyesight. For some, 2 spaces is just not enough indentation, making it unnecessarily hard to read code, others might need to use very large font sizes, and prefer shorter indentations to save screen space.</p>
+<h2>Consistency (again, but differently)</h2>
 <p>This is by far the most ridiculous reason, or group of reasons people make to argue for spaces:</p>
-<p>Projects indented with tabs, so the claim, cause additional work when people contribute code that is indented with spaces, requiring additional moderator intervention.</p>
+<p>Projects indented with tabs—so the claim—cause additional work when people contribute code that is indented with spaces, requiring additional moderator intervention.</p>
 <p>Needless to say, this argument works exactly the same both ways, and if anything, says more about the typical space-user than the typical tab-user.</p>
-<p>Regardless of preference, in the age of linting tools and CI pipelines, this is just not an issue anymore. We can automate the process of checking indentation, or even have it fixed automatically.</p>
-<h1>Conclusion</h1>
-<p>There is not a single good reason to prefer spaces over tabs. The whole space-indentation mythology is nothing but hot air and false claims.</p>
-<hr />
-<p>Do you disagree with my position? Let me know!</p>
-<p>I'd love to hear additional arguments for or against spaces in the comment section :D</p>
+<p>Regardless of preference, in the age of linting tools and CI pipelines, this is just not an issue any more. We can automate the process of checking indentation, or even have it fixed automatically.</p>
+<h2>Conclusion</h2>
+<p>There is not a single good reason to prefer spaces over tabs. The whole space-indentation mythology is nothing but ridiculous non sequiturs and false claims.</p>
 </article></body></html>

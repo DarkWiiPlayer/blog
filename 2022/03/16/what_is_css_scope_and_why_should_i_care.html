@@ -1,0 +1,69 @@
+<html lang="english"><head><link href="/blog/css/site.css" rel="stylesheet"><link href="https://darkwiiplayer.github.io/css/all.css" rel="stylesheet"><link href="https://darkwiiplayer.github.io/css/schemes/talia.css" rel="stylesheet"><meta charset="UTF-8"><title>What is CSS @scope and why should I care?</title><link href="/blog/css/post.css" rel="stylesheet"></head><body><nav><ul><li><a href="/blog/">Index</a></li><li><a href="/blog/2022/03/16/what_is_css_scope_and_why_should_i_care.html">What is CSS @scope and why should I care?</a></li><li><a href="/blog/2021/11/20/an_introduction_tocoroutines.html">An Introduction to Coroutines</a></li><li><a href="/blog/2021/09/11/building_an_html_type-writer.html">Building an HTML Type-Writer</a></li><li><a href="/blog/2021/02/15/tabs_are_objectively_better_than_spaces_and_heres_why.html">Tabs are objectively better than spaces, and here's why</a></li><li><a href="/blog/2020/11/25/a_rant_on_change_and_the_good_old_times.html">A rant on change, and the good old times.</a></li><li><a href="/blog/2019/04/01/why_i_prefer_lua_to_ruby.html">Why I prefer Lua to Ruby</a></li></ul></nav><article><h1>What is CSS @scope and why should I care?</h1><h2>A brief history of Scoping and CSS</h2>
+<p>Scoping CSS to certain regions of the DOM is not a new idea.</p>
+<p>The <code>scope</code> attribute for <code>&lt;style&gt;</code> tags was one attempt at addressing it. Nowadays, it is sadly deprecated though.</p>
+<pre><code class="language-css">/* ⚠ This is deprecated. It doesn't and won't work ⚠ */
+&lt;div&gt;
+   &lt;style scope&gt;p { color: red; }&lt;/style&gt;
+   &lt;p&gt;Red Text&lt;/p&gt;
+&lt;/div&gt;
+&lt;p&gt;Normal Text&lt;/p&gt;
+</code></pre>
+<p>Many front-end frameworks implement their own scoping by prefixing CSS rules with IDs and classes and adding those to their HTML output. However, this requires a lot of complexity in the framework and is still brittle.</p>
+<p>Then components came into the browser, in the form of custom elements and shadow-DOM. In fact, one part of shadow-DOM is that all the CSS inside it is scoped. However, it doesn't permit outside CSS to leak inside either.</p>
+<h2>Native Scoping is still on the table</h2>
+<p>The exact reason why <code>scope</code> was originally abandoned seems a bit fuzzy. Some will tell you it was because browsers didn't want to implement it, others say that it was just about letting web components become a thing, then re-evaluate the need for pure CSS scoping.</p>
+<p>Whatever the case may be, CSS authors still seem to have an interest in scoping being a thing, for a variety of reasons.</p>
+<h2>CSS Scoping Revived: <code>@scope</code></h2>
+<p>The <code>@scope</code> rule is the newest attempt at bringing CSS scoping to the browser. It is described in the <a href="https://www.w3.org/TR/css-cascade-6/#scoped-styles">Working Draft</a> of the <em>CSS Cascading and Inheritance Level 6</em> specification.</p>
+<p>In other words: it's far from being usable. But there's still plenty of reasons to be hyped about it! 😁</p>
+<hr />
+<p>The way this would work is simple: we would first define where we want our rules to apply. We can use any CSS selector here, but to avoid distractions, I will be using the <code>outer-component</code> and <code>inner-component</code> custom elements for the rest of this article.</p>
+<pre><code class="language-css">@scope (outer-component) {
+   p { color: red; }
+}
+</code></pre>
+<p>Any rules written inside this scope block will only apply inside an element described by the selector.</p>
+<pre><code class="language-html">&lt;p&gt;This text is black&lt;/p&gt;
+&lt;outer-component&gt;
+   &lt;p&gt;This text is red&lt;/p&gt;
+&lt;/outer-component&gt;
+</code></pre>
+<p>And we can also describe a lower boundary to this scope; another selector telling the browser that the scope should <em>not</em> apply to a certain sub-tree.</p>
+<pre><code class="language-css">@scope (outer-component) to (inner-component) {
+   p { color: red; }
+}
+</code></pre>
+<pre><code class="language-html">&lt;outer-component&gt;
+   &lt;p&gt;This text is red&lt;/p&gt;
+   &lt;inner-component&gt;
+      &lt;p&gt;This text is black&lt;/p&gt;
+   &lt;/inner-component&gt;
+&lt;/outer-component&gt;
+</code></pre>
+<h2>Why should we be hyped about it?</h2>
+<p>The example with two nested custom elements already shows one possible use-case. Having styles apply only inside specific components without prefixing every selector with the component name is already useful.</p>
+<p>But the addition of a lower boundary to prevent styles from leeking into nested components makes this incredibly useful, specialy in the modern front-end landscape is constantly moving away from monolithic structures and towards small, portable and interchangeable components.</p>
+<p>If you're writing plain CSS for some vanilla JS components, you will be able to write CSS that's much more similar to what frameworks like svelte allow you to do: Write a bunch of rules and they will only apply inside the component. Imagine doing that with direct-child selectors 😵‍💫</p>
+<p>here's an example of where this could be useful without any components or custom elements:</p>
+<pre><code class="language-css">th { background: black; color: white; }
+@scope (table.vertical) to (table) {
+   th::after { content: ':' }
+   th { all: initial; }
+}
+</code></pre>
+<hr />
+<p>Meanwhile, for authors of such component frameworks, native CSS scoping will vastly reduce the complexity they have to deal with as they will no longer have to automatically prefix selectors nor add IDs or classes to the elements they should apply to.</p>
+<p>A somewhat simplified version of what such a framework could do:</p>
+<pre><code class="language-js">component_css = `
+	@scope ([data-component=&quot;${component.name}&quot;]) to ([data-component]) {
+		${component.styles}
+	}
+`
+</code></pre>
+<hr />
+<p>Even if you just use these frameworks, which already implement CSS scoping, there might be some benefits for you. Most importantly: since the scoping happens in the browser at runtime, frameworks don't need to know about your elements in order to style them, so there will be much less friction between frameworks and manually generated content. Inserting some HTML via <code>.appendChild()</code> would &quot;just work&quot;.</p>
+<pre><code class="language-js">// No code example for this one, because these problems only tend
+// to surface once the project becomes a little bit more complex
+// and several libraries trying to work together.
+</code></pre>
+</article></body></html>
