@@ -1,4 +1,12 @@
-<html lang="english"><head><link href="/blog/css/site.css" rel="stylesheet"><link href="https://darkwiiplayer.github.io/css/all.css" rel="stylesheet"><link href="https://darkwiiplayer.github.io/css/schemes/talia.css" rel="stylesheet"><meta charset="UTF-8"><title>Building an HTML Type-Writer</title><link href="/blog/css/post.css" rel="stylesheet"></head><body><nav><ul><li><a href="/blog/">Index</a></li><li><a href="/blog/2022/03/16/what_is_css_scope_and_why_should_i_care.html">What is CSS @scope and why should I care?</a></li><li><a href="/blog/2021/11/20/an_introduction_tocoroutines.html">An Introduction to Coroutines</a></li><li><a href="/blog/2021/09/11/building_an_html_type-writer.html">Building an HTML Type-Writer</a></li><li><a href="/blog/2021/02/15/tabs_are_objectively_better_than_spaces_and_heres_why.html">Tabs are objectively better than spaces, and here's why</a></li><li><a href="/blog/2020/11/25/a_rant_on_change_and_the_good_old_times.html">A rant on change, and the good old times.</a></li><li><a href="/blog/2019/04/01/why_i_prefer_lua_to_ruby.html">Why I prefer Lua to Ruby</a></li></ul></nav><article><h1>Building an HTML Type-Writer</h1><h2>Backstory</h2>
+<html lang="english"><head><meta charset="UTF-8"><meta content="width=device-width" name="viewport"><link rel="stylesheet" href="https://darkwiiplayer.github.io/css/all.css"><link rel="stylesheet" href="https://darkwiiplayer.github.io/css/schemes/talia.css"><style>	@import url('https://fonts.googleapis.com/css2?family=Raleway&display=swap');
+	@import url('https://fonts.googleapis.com/css2?family=Open+Sans&display=swap');
+	@import url('https://fonts.googleapis.com/css2?family=Fira+Code&display=swap');
+
+	:root { container: style; }
+	:is(h1, h2, h3, h4, h5, h6) { font-family: "Raleway", sans-serif; }
+	:is(code, kbd, var, samp) { font-family: "Fira Code", monospace; }
+	.badge { font-family: "Open Sans", sans-serif }
+</style><title>Building an HTML Type-Writer</title></head><body><header class="sticky"><h1>Talia's Blog</h1><nav class="right bar"><ul><li><a href="/blog">Home</a></li></ul></nav></header><main><article><h1>Building an HTML Type-Writer</h1><nav class="breadcrumbs"><ul><li><a href="/blog/">Blog</a></li><li><a href="/2021">2021</a></li><li><a href="/2021/09">09</a></li><li><a href="/2021/09/11">11</a></li><li class="active">Building an HTML Type-Writer</li></ul></nav><h2>Backstory</h2>
 <p>A few weeks ago, I built a simple type-writer web component: a user would load a JavaScript module and define a <code>&lt;type-writer&gt;</code> element with several lines of text. The component would then type out the first line of text, delete it again and rotate it to the back of the list.</p>
 <pre><code class="language-html">&lt;type-writer&gt;
 	Here's a first line
@@ -189,4 +197,4 @@ async run() {
 <p>I am aware that this example doesn't really target only one skill-level, as something like recursively traversing a tree is a lot more &quot;basic&quot; than dynamic property definitions and other meta-programming, but I hope that everyone can find at least one or two things they find helpful.</p>
 <p>And last but not least, <a href="https://github.com/DarkWiiPlayer/components/blob/master/TypeWriter.js">here's the actual code</a>, but keep in mind that I changed and ommitted a few things to make the code easier to follow in the article.</p>
 <p>What are your thoughts? Would you improve anything about this aproach? Have you ever found yourself using similar tools to solve a problem? Let me know in the comments and happy discussing! 💜</p>
-</article></body></html>
+</article></main></body></html>
