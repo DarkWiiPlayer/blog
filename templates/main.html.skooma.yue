@@ -2,15 +2,38 @@ import output from require 'params'
 import slotty from require 'skooma'
 import 'config'
 
+styles = [[
+	@import url('https://fonts.googleapis.com/css2?family=Raleway&display=swap');
+	@import url('https://fonts.googleapis.com/css2?family=Open+Sans&display=swap');
+	@import url('https://fonts.googleapis.com/css2?family=Fira+Code&display=swap');
+
+	:root { container: style; }
+	:is(h1, h2, h3, h4, h5, h6) { font-family: "Raleway", sans-serif; }
+	:is(code, kbd, var, samp) { font-family: "Fira Code", monospace; }
+	.badge { font-family: "Open Sans", sans-serif }
+]]
+
 slots = slotty!
+
+css = =>
+	link rel: 'stylesheet', href: @
 
 content, data = select 1, ...
 html
 	lang: "english"
 	* head
-		* link rel: "stylesheet", href: "/#{output}/css/site.css"
 		* meta charset: "UTF-8"
+		* meta name: "viewport", content: "width=device-width"
+		* css 'https://darkwiiplayer.github.io/css/all.css'
+		* css 'https://darkwiiplayer.github.io/css/schemes/talia.css'
+		* style styles
 		* slots.head
 		* [ link rel: "modulepreload", href: module.url for module in *config.modules when module.preload ]
 	* body
-		* content slots, data
+		* slots.top
+		* header class: 'sticky'
+			* h1 "Talia's Blog"
+			* nav { class: 'right bar' }
+				* ul li a "Home", href: "/blog"
+		* main
+			* content slots, data

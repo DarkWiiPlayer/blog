@@ -3,14 +3,15 @@ slots, json = select 1, ...
 posts = require 'posts'
 
 post = =>
-	blogPost {
-		name: @head.slug
-		a @head.title, href: "/"..output..@head.uri
-	}
+	a href: "/"..output..@head.uri,
+		* flexColumn
+			* b @head.title
+			* time is: 'local-date', datetime: @head.date, @head.date
+			* @head.description
 
 slots.head title "Index"
-slots.head script "window.posts = JSON.parse(`#{json}`)"
-slots.head script type: 'module', src: "/#{output}/javascript/BlogPost.js"
 slots.head script type: 'module', src: "/#{output}/javascript/LocalDate.js"
 
-return ul [li post p for p in *posts]
+return main
+	* h1 "Blog Posts"
+	* nav ul [li post p for p in *posts]

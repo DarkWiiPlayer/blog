@@ -4,11 +4,25 @@ slots, post = select 1, ...
 url = (path) -> "/"..output..path
 
 slots.head title post.head.title
-slots.head link rel: "stylesheet", href: "/#{output}/css/post.css"
+
+positions = (input, character) ->
+	((last) => @find(character, last+1, true)), input, 1
+
+breadcrumb = (href) -> li a :href, href\match('[^/]+$')
+
+if src = post.head.cover_image
+	slots.top pageHero cover: 60
+		* img :src, style: 'opacity: .4'
+		* h1(post.head.title)
+else
+	slots.title h1(post.head.title)
 
 return (=>@)
-	* nav
-		* ul
-			* li a "Index", href: url "/"
-			* [li a post.head.title, href: url post.head.uri for post in *require("posts")]
-	* article { h1(post.head.title), post.body }
+	* article 
+		* slots.title
+		* nav { class: "breadcrumbs" }
+			* ul
+				* li a "Blog", href: url "/"
+				* [ breadcrumb post.head.uri\sub(1, number-1) for number in positions(post.head.uri, "/") ]
+				* li post.head.title, class: 'active'
+		* post.body
