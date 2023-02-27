@@ -1,3 +1,4 @@
+local cmark = require 'cmark'
 local restia = require 'restia'
 local params = require 'params'
 local yaml = require 'lyaml'
@@ -29,7 +30,7 @@ local function read_post(file)
 	local head, body = restia.utils.frontmatter(content)
 	return {
 		head = head and yaml.load(head) or {};
-		body = cmark.render_html(cmark.parse_document(body, #body, cmark.OPT_DEFAULT), cmark.OPT_DEFAULT);
+		body = cmark.render_html(cmark.parse_document(body, #body, cmark.OPT_DEFAULT), cmark.OPT_DEFAULT + cmark.OPT_UNSAFE);
 	}
 end
 

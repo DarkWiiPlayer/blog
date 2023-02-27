@@ -1,4 +1,3 @@
-local cmark = require 'cmark'
 local csv = require 'streamcsv'
 local fun = require 'fun'
 local json = require 'cjson'

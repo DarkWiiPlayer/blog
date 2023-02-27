@@ -12,6 +12,7 @@ local cpath = path:gsub(".lua", ".so"):gsub("/share/", "/lib/")
 
 task.build {
 	description = "Builds the page";
+	'mkdir -p .luarocks lua_modules';
 	'luarocks install --only-deps *.rockspec';
 	'tup';
 	'rm -rf blog/*';
