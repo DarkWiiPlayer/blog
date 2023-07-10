@@ -5,6 +5,24 @@ url = (path) -> "/"..output..path
 
 slots.head title post.head.title
 
+-- Generic shenanigans
+slots.head
+	* meta name: "author", content: "Talia"
+
+-- Search shenanigans
+slots.head
+	* meta property: "article:published_time", content: post.head.date
+	* meta property: "article:author", content: "https://tech.lgbt/@darkwiiplayer"
+
+-- OpenGraph shenanigans
+slots.head
+	* meta property: "og:title", content: post.head.title
+	* meta property: "og:site_name", content: "Talia's Blog"
+	* meta property: "og:description", content: post.head.description
+	* meta property: "og:type", content: "article"
+	* meta property: "og:article:author", content: "Talia"
+	* [ meta property: "og:article:tag", content: tag for tag in *post.head.tags ]
+
 positions = (input, character) ->
 	((last) => @find(character, last+1, true)), input, 1
 
@@ -14,11 +32,13 @@ if src = post.head.cover_image
 	slots.top pageHero cover: 60
 		* img :src, style: 'opacity: .4'
 		* h1(post.head.title)
+	slots.head
+		* meta property: "og:image", content: src
 else
 	slots.title h1(post.head.title)
 
 return (=>@)
-	* article 
+	* article
 		* slots.title
 		* nav { class: "breadcrumbs" }
 			* ul
