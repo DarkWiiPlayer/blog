@@ -5,7 +5,7 @@ posts = require 'posts'
 post = =>
 	a href: "/"..output..@head.uri,
 		* flexColumn
-			* b @head.title
+			* h2 @head.title, style: "view-transition-name: #{@head.slug}"
 			* time is: 'local-date', datetime: @head.date, @head.date
 			* @head.description
 

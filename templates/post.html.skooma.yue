@@ -31,11 +31,11 @@ breadcrumb = (href) -> li a :href, href\match('[^/]+$')
 if src = post.head.cover_image
 	slots.top pageHero cover: 60
 		* img :src, style: 'opacity: .4'
-		* h1(post.head.title)
+		* h1(post.head.title, style: "view-transition-name: #{post.head.slug}")
 	slots.head
 		* meta property: "og:image", content: src
 else
-	slots.title h1(post.head.title)
+	slots.title h1(post.head.title, style: "view-transition-name: #{post.head.slug}")
 
 return (=>@)
 	* article

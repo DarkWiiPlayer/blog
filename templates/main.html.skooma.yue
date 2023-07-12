@@ -22,6 +22,7 @@ content, data = select 1, ...
 html
 	lang: "english"
 	* head
+		* meta name: "view-transition", content: "same-origin"
 		* meta charset: "UTF-8"
 		* meta name: "viewport", content: "width=device-width"
 		* css 'https://darkwiiplayer.github.io/css/all.css'
