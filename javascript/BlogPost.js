@@ -9,7 +9,7 @@ export default element(class BlogPost extends HTMLElement {
 	}
 	async nameChanged() {
 		this.replace(
-			html.a({href: `/blog${this.post.head.uri}`}, html.h2(this.post.head.title)),
+			html.a({href: `${this.post.head.uri}`}, html.h2(this.post.head.title)),
 			this.post.head.description ? html.p(this.post.head.description) : undefined,
 			html.p(html.time$localDate({datetime: this.post.head.date, class: ["timestamp"]}))
 		)
