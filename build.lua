@@ -1,4 +1,3 @@
-local csv = require 'streamcsv'
 local fun = require 'fun'
 local json = require 'cjson'
 local restia = require 'restia'
@@ -60,5 +59,9 @@ tree["posts.json"] = json.encode(
 )
 
 tree["index.html"] = tostring(page("index", tree["posts.json"]))
+
+if params.cname then
+	tree.CNAME = params.cname
+end
 
 scaffold.builddir(params.output, tree)
