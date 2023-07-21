@@ -35,6 +35,6 @@ html
 		* header class: 'sticky'
 			* h1 "Talia's Blog"
 			* nav { class: 'right bar' }
-				* ul li a "Home", href: "/blog"
+				* ul li a "Home", href: "/"
 		* main
 			* content slots, data

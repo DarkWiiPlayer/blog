@@ -1,16 +1,15 @@
-import output from require 'params'
 slots, json = select 1, ...
 posts = require 'posts'
 
 post = =>
-	a href: "/"..output..@head.uri,
+	a href: @head.uri,
 		* flexColumn
 			* h2 @head.title, style: "view-transition-name: #{@head.slug}"
 			* time is: 'local-date', datetime: @head.date, @head.date
 			* @head.description
 
 slots.head title "Index"
-slots.head script type: 'module', src: "/#{output}/javascript/LocalDate.js"
+slots.head script type: 'module', src: "/javascript/LocalDate.js"
 
 return main
 	* h1 "Blog Posts"
