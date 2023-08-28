@@ -32,7 +32,7 @@ html
 		* [ link rel: "modulepreload", href: module.url for module in *config.modules when module.preload ]
 	* body
 		* slots.top
-		* header class: 'sticky'
+		* header class: 'sticky', style: "view-transition-name: header"
 			* h1 "Talia's Blog"
 			* nav { class: 'right bar' }
 				* ul li a "Home", href: "/"
