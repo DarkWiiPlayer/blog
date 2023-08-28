@@ -9,15 +9,15 @@ description = {
 }
 dependencies = {
 	"arrr ~> 2.2",
-	"glass ~> 1.3.0",
+	"glass ~> 1.3",
 	"cmark ~> 0.29",
-	"fun ~> 0.1.3",
+	"fun ~> 0.1",
 	"lua-cjson ~> 2.1",
 	"restia",
-	"scaffold ~> 1.1.0",
-	"shapeshift ~> 1.1.0",
-	"skooma ~> 0.3",
-	"streamcsv ~> 1.1.0",
+	"scaffold ~> 1.1",
+	"shapeshift ~> 1.1",
+	"skooma",
+	"streamcsv ~> 1.1",
 }
 build = {
 	type = "builtin",

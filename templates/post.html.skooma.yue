@@ -37,7 +37,18 @@ if src = post.head.cover_image
 else
 	slots.title h1(post.head.title, style: "view-transition-name: #{post.head.slug}")
 
+slots.banner aside class: { 'box' }
+	* b "Hey there!"
+	* p raw [[
+		This blog doesn't use any tracking. When you open this page, I don't see
+		a number going up anywhere, so if you like this post, please consider
+		letting me know on <a href="https://tech.lgbt/@darkwiiplayer">the fediverse</a>!
+		This is also the best way of giving any other feedback on my blog posts.
+	]]
+	* p i "Thank you."
+
 return (=>@)
+	* slots.banner
 	* article
 		* slots.title
 		* nav { class: "breadcrumbs" }
@@ -45,4 +56,4 @@ return (=>@)
 				* li a "Blog", href: url "/"
 				* [ breadcrumb post.head.uri\sub(1, number-1) for number in positions(post.head.uri, "/") ]
 				* li post.head.title, class: 'active'
-		* post.body
+		* raw post.body
