@@ -46,7 +46,7 @@ for file in restia.utils.files(params.input, "^./posts/.*%.md$") do
 	post.head.timestamp = parsedate(post.head.date)
 
 	if "string" == type(post.head.tags) then
-		post.head.tags = string.split(post.head.tags, "%a+")
+		post.head.tags = string.split(post.head.tags, "[%a-]+")
 	end
 
 	post.head.slug = post.head.title
