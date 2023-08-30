@@ -27,6 +27,7 @@ html
 		* meta name: "viewport", content: "width=device-width"
 		* css 'https://darkwiiplayer.github.io/css/all.css'
 		* css 'https://darkwiiplayer.github.io/css/schemes/talia.css'
+		* css "/css/site.css"
 		* style styles
 		* slots.head
 		* [ link rel: "modulepreload", href: module.url for module in *config.modules when module.preload ]

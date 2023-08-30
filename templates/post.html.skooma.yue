@@ -1,4 +1,4 @@
-rgbstr = require 'rgbstr'
+tags = require 'tags'
 import output from require 'params'
 slots, post = select 1, ...
 
@@ -48,20 +48,10 @@ slots.banner aside class: { 'box' }
 	]]
 	* p i "Thank you."
 
-tag = (name) ->
-	colour = { rgbstr.bytes name, 16, .6 }
-	a name, href: "/?tag=#{name}", style: "--color: rgb(#{table.concat(colour, ', ')})"
-
-tags ==>
-	if @tags
-		return
-			* flexRow [tag name for name in *@tags], gap: 1, style: 'justify-content: flex-start'
-			* verticalSpacer
-
 return (=>@)
 	* article
 		* slots.title
-		* tags(post.head)
+		* tags(post.head.tags)
 		* nav { class: "breadcrumbs" }
 			* ul
 				* li a "Blog", href: url "/"

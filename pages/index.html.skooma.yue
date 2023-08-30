@@ -1,28 +1,17 @@
 slots, json = select 1, ...
 posts = require 'posts'
-rgbstr = require 'rgbstr'
-
-tag = (name) ->
-	colour = { rgbstr.bytes name, 16, .6 }
-	postTag a name, href: "/?tag=#{name}", style: "--color: rgb(#{table.concat(colour, ', ')})"
-
-tags ==>
-	if @tags
-		return
-			* flexRow [tag name for name in *@tags], gap: 1, style: 'justify-content: flex-start'
-			* verticalSpacer
+tags = require 'tags'
 
 post = =>
 	flexColumn
 		* h2 a(@head.title, href: @head.uri), style: "view-transition-name: #{@head.slug}"
-		* tags(@head)
+		* tags(@head.tags)
 		* time is: 'local-date', datetime: @head.date, @head.date
 		* @head.description
 
 slots.head title "Index"
 slots.head script type: 'module', src: "/javascript/LocalDate.js"
 slots.head script type: 'module', src: "/javascript/BlogPost.js"
-
 
 return main
 	* h1 "Blog Posts"
