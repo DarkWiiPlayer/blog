@@ -39,3 +39,10 @@ html
 				* ul li a "Home", href: "/"
 		* main
 			* content slots, data
+		* ->
+			if #slots.footer > 0
+				footer class: "box"
+					* gridBox columns: math.min(#slots.footer, 3), class: 'content-padding'
+						* slots.footer
+			else
+				{}
