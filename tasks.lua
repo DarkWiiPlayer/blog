@@ -10,6 +10,11 @@ local path = table.concat({
 
 local cpath = path:gsub(".lua", ".so"):gsub("/share/", "/lib/")
 
+task.clean {
+	description = "Removes local rocks";
+	'rm -r lua_modules';
+}
+
 task.build {
 	description = "Builds the page";
 	'mkdir -p .luarocks lua_modules';
