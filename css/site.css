@@ -16,8 +16,10 @@ blog-post + blog-post {
 		text-decoration: none;
 		color: inherit;
 		padding: .2em;
+		line-height: 1em;
 		padding-left: 1.2em;
 		transition: all .3s;
+		display: inline-block;
 	}
 
 	post-tag > a::before, post-tag > a::after {
