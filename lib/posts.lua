@@ -49,6 +49,10 @@ for file in restia.utils.files(params.input, "^./posts/.*%.md$") do
 		post.head.tags = string.split(post.head.tags, "[%a-]+")
 	end
 
+	for key, tag in ipairs(post.head.tags) do
+		post.head.tags[key] = string.lower(tag)
+	end
+
 	post.head.slug = post.head.title
 		:gsub(' ', '_')
 		:lower()
