@@ -2,6 +2,18 @@ blog-post[hidden] {
 	display: none;
 }
 
+.summary {
+	font-size: .8em;
+	font-style: italic;
+	opacity: .6;
+	transition: opacity .3s;
+	tab-stop: 0;
+}
+
+.summary:is(:hover, :focus) {
+	opacity: 1;
+}
+
 blog-post {
 	display: block;
 }
