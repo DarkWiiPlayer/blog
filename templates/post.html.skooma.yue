@@ -38,6 +38,9 @@ if src = post.head.cover_image
 else
 	slots.title h1(post.head.title, style: "view-transition-name: #{post.head.slug}")
 
+slots.summary div post.head.description, class: "summary"
+slots.summary verticalSpacer
+
 slots.banner aside class: { 'box' }
 	* b "Hey there!"
 	* p raw [[
@@ -55,6 +58,7 @@ slots.footer aside id: "contact"
 return (=>@)
 	* article
 		* slots.title
+		* slots.summary
 		* tags(post.head.tags)
 		* nav { class: "breadcrumbs" }
 			* ul
