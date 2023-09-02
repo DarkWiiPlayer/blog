@@ -27,7 +27,7 @@ slots.head
 positions = (input, character) ->
 	((last) => @find(character, last+1, true)), input, 1
 
-breadcrumb = (href) -> li a :href, href\match('[^/]+$')
+breadcrumb = (href) -> li a :href, href\match('[^/]+$'), tabindex: 0
 
 if src = post.head.cover_image
 	slots.top pageHero cover: 60
@@ -38,7 +38,7 @@ if src = post.head.cover_image
 else
 	slots.title h1(post.head.title, style: "view-transition-name: #{post.head.slug}")
 
-slots.summary div post.head.description, class: "summary"
+slots.summary div post.head.description, class: "summary", tabindex: 0
 slots.summary verticalSpacer
 
 slots.banner aside class: { 'box' }
@@ -62,7 +62,7 @@ return (=>@)
 		* tags(post.head.tags)
 		* nav { class: "breadcrumbs" }
 			* ul
-				* li a "Blog", href: url "/"
+				* li a "Blog", tabindex: 0, href: url "/"
 				* [ breadcrumb post.head.uri\sub(1, number-1) for number in positions(post.head.uri, "/") ]
 				* li post.head.title, class: 'active'
 		* verticalSpacer

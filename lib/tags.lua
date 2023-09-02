@@ -4,6 +4,7 @@ local rgbstr = require 'rgbstr'
 local function tag(name)
 	local colour = { rgbstr.bytes(name, 16, .3, .5) }
 	return html.postTag(html.a {
+		tabindex = 0;
 		name;
 		href = "/?tag="..name;
 		style = "--color: rgb("..table.concat(colour, ', ')..")";
