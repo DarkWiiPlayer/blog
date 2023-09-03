@@ -1,9 +1,11 @@
+rgbstr = require 'rgbstr'
 slots, json = select 1, ...
 posts = require 'posts'
 tags = require 'tags'
 
 post = =>
-	flexColumn
+	color = table.concat({rgbstr.bytes(@head.tags[1], 16, .3, .5)}, " ")
+	flexColumn class: "info box", style: "--color: rgb(#{color})"
 		* h2 a(@head.title, href: @head.uri), style: "view-transition-name: #{@head.slug}"
 		* tags(@head.tags)
 		* time is: 'local-date', datetime: @head.date, @head.date
