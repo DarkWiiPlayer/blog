@@ -11,7 +11,15 @@ post = =>
 		* time is: 'local-date', datetime: @head.date, @head.date
 		* @head.description
 
-slots.head title "Index"
+slots.head title "Talia's Blog"
+
+slots.head
+	* meta property: "og:title", content: "Index"
+	* meta property: "og:site_name", content: "Talia's Blog"
+	* meta property: "og:description", content: "This is my personal blog with a focus on IT and Programming content unless I have something else to say."
+	* meta property: "og:type", content: "website"
+	* meta property: "og:article:author", content: "Talia"
+
 slots.head script type: 'module', src: "/javascript/LocalDate.js"
 slots.head script type: 'module', src: "/javascript/BlogPost.js"
 
