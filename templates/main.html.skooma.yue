@@ -15,6 +15,23 @@ styles = [[
 
 slots = slotty!
 
+slots.footer aside id: "contact"
+	* h2 "Social"
+	* p
+		* "Got feedback? — Tag me on fedi!"
+		* br
+		* a "@darkwiiplayer@tech.lgbt", href: 'https://tech.lgbt/@darkwiiplayer', rel: 'me'
+
+slots.footer aside id: "git"
+	* h2 "Git"
+	* ul
+		* li a "Github", href: "https://github.com/darkwiiplayer"
+		* li a "Gitea", href: "https://git.but.gay/darkwiiplayer"
+
+slots.footer aside id: "platforms"
+	* h2 "Federated cloud"
+	* p "darkwiiplayer@cloud.but.gay"
+
 css = =>
 	link rel: 'stylesheet', href: @
 
@@ -40,9 +57,6 @@ html
 		* main
 			* content slots, data
 		* ->
-			if #slots.footer > 0
-				footer class: "box"
-					* gridBox columns: math.min(#slots.footer, 3), class: 'content-padding'
-						* slots.footer
-			else
-				{}
+			footer class: "box"
+				* gridBox columns: math.min(#slots.footer, 3), class: 'content-padding'
+					* slots.footer

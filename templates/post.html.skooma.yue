@@ -51,10 +51,6 @@ slots.banner aside class: { 'box' }
 	]]
 	* p i "Thank you."
 
-slots.footer aside id: "contact"
-	* p raw "Got feedback?<br>Tag me on fedi!"
-	* a "@darkwiiplayer@tech.lgbt", href: 'https://tech.lgbt/@darkwiiplayer'
-
 return (=>@)
 	* article
 		* slots.title
