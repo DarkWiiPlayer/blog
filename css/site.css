@@ -2,6 +2,18 @@ blog-post[hidden] {
 	display: none;
 }
 
+.summary {
+	font-size: .8em;
+	font-style: italic;
+	opacity: .6;
+	transition: opacity .3s;
+	tab-stop: 0;
+}
+
+.summary:is(:hover, :focus) {
+	opacity: 1;
+}
+
 blog-post {
 	display: block;
 }
@@ -16,8 +28,10 @@ blog-post + blog-post {
 		text-decoration: none;
 		color: inherit;
 		padding: .2em;
+		line-height: 1em;
 		padding-left: 1.2em;
 		transition: all .3s;
+		display: inline-block;
 	}
 
 	post-tag > a::before, post-tag > a::after {
