@@ -39,6 +39,7 @@ content, data = select 1, ...
 html
 	lang: "english"
 	* head
+		* link rel: 'alternate', type: 'application/rss+xml', title: 'RSS 2.0 feed', href: "/feeds/all.rss.xml"
 		* meta name: "view-transition", content: "same-origin"
 		* meta charset: "UTF-8"
 		* meta name: "viewport", content: "width=device-width"

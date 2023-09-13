@@ -5,6 +5,7 @@ local scaffold = require 'scaffold'
 local shapeshift = require 'shapeshift'
 
 -- Project-specific stuff
+local rss = require 'feed.rss'
 local paramparser = require 'paramparser'
 local params = paramparser(...)
 package.loaded.params = params
@@ -33,6 +34,8 @@ for idx, post in ipairs(posts) do
 
 	scaffold.deep(tree, post.path, body)
 end
+
+scaffold.deep(tree, "feeds/all.rss.xml", rss(posts))
 
 if params.delete then
 	restia.utils.delete(params.output)
