@@ -1,3 +1,701 @@
 <rss xmlns:atom="http://www.w3.org/2005/Atom" version="2.0"><channel><title>Talia's Blog
 </title><link>https://blog.but.gay/</link><description>This is my personal blog with a focus on IT and Programming content unless I have something else to say.
-</description><language>en-uk</language><lastBuildDate>Wed Sep 13 15:32:40 2023</lastBuildDate><item><title>Making the case for Skooma</title><description>In this short post I present a simple personal library I wrote for myself to  handle HTML generation in JavaScript, compare it to many of its alternatives, and evaluate whether it was worth the time investment of not just picking an existing library.</description><link>https://blog.but.gay/2023/08/06/making_the_case_for_skooma.html</link><guid>https://blog.but.gay/2023/08/06/making_the_case_for_skooma.html</guid><pubDate>06 Aug 2023</pubDate></item><item><title>What is CSS @scope and why should I care?</title><description>A short introduction to the new CSS @scope rule, the history of CSS scoping and what makes it useful for different areas of web-development</description><link>https://blog.but.gay/2022/03/16/what_is_css_scope_and_why_should_i_care.html</link><guid>https://blog.but.gay/2022/03/16/what_is_css_scope_and_why_should_i_care.html</guid><pubDate>16 Mar 2022</pubDate></item><item><title>An Introduction to Coroutines</title><description>A language-agnostic introduction to the concept of Coroutines</description><link>https://blog.but.gay/2021/11/20/an_introduction_to_coroutines.html</link><guid>https://blog.but.gay/2021/11/20/an_introduction_to_coroutines.html</guid><pubDate>20 Nov 2021</pubDate></item><item><title>Type-Writer Component: Magic and Asynchronicity</title><description>A detailed description of the development process of an HTML TypeWriter element in plain JavaScript using the custom-element API, meta-programming and some recursion magic.</description><link>https://blog.but.gay/2021/09/11/type-writer_component_magic_and_asynchronicity.html</link><guid>https://blog.but.gay/2021/09/11/type-writer_component_magic_and_asynchronicity.html</guid><pubDate>11 Sep 2021</pubDate></item><item><title>Tabs are objectively better than spaces, and here's why</title><description>Here's why I think tabs are objectively better than spaces</description><link>https://blog.but.gay/2021/02/15/tabs_are_objectively_better_than_spaces_and_heres_why.html</link><guid>https://blog.but.gay/2021/02/15/tabs_are_objectively_better_than_spaces_and_heres_why.html</guid><pubDate>15 Feb 2021</pubDate></item><item><title>A rant on change, and the good old times.</title><description>A long and poorly structured rant about a series of harmful phenomena I've observed in the world of programming.</description><link>https://blog.but.gay/2020/11/25/a_rant_on_change_and_the_good_old_times.html</link><guid>https://blog.but.gay/2020/11/25/a_rant_on_change_and_the_good_old_times.html</guid><pubDate>25 Nov 2020</pubDate></item><item><title>Why I prefer Lua to Ruby</title><description>A short post describing the main reasons why after years of using both languages, I still prefer Lua to Ruby for most general situations.</description><link>https://blog.but.gay/2019/04/01/why_i_prefer_lua_to_ruby.html</link><guid>https://blog.but.gay/2019/04/01/why_i_prefer_lua_to_ruby.html</guid><pubDate>01 Apr 2019</pubDate></item></channel></rss>
+</description><language>en-uk</language><lastBuildDate>Wed Sep 20 16:22:39 2023</lastBuildDate><item><title>Making the case for Skooma</title><description>In this short post I present a simple personal library I wrote for myself to  handle HTML generation in JavaScript, compare it to many of its alternatives, and evaluate whether it was worth the time investment of not just picking an existing library.</description><content type="html">&lt;h2&gt;Introduction&lt;/h2&gt;
+&lt;p&gt;Skooma.js is a small library I built for myself to solve the problem of generating dynamic HTML from vanilla JavaScript. It's an adaptation of a Lua library of the same name to JS, with some additional quality of life improvements that only work because it runs in the browser.&lt;/p&gt;
+&lt;p&gt;The point of this post is not to convince anyone to use it. The API is relatively stable and it seems relatively bug-free by now, but this is still primarily intended as my personal helper library. Instead I want to make an argument for why I think it was a good idea to build it.&lt;/p&gt;
+&lt;h2&gt;History&lt;/h2&gt;
+&lt;p&gt;Skooma, as mentioned above, started out as a Lua library to generate HTML on the server side. The core concept is simple: for every HTML (or XML) tag, there is a function that takes the tags contents and returns some representation of the tag. While the library allows users to mutate the returned elements (represented as a reeeeeally simple DOM structure), the library itself is free of side-effects (with the exception of certain helpers that are explicitly about side effects), so it works well with a functional approach.&lt;/p&gt;
+&lt;p&gt;You can map an array of strings with the &lt;code&gt;span&lt;/code&gt; function to turn it into an array of &lt;code&gt;span&lt;/code&gt; elements containing the strings as their text. Complex structures (&quot;components&quot;) can easily be composed as new functions.&lt;/p&gt;
+&lt;p&gt;The primary motivation for this library was a general dissatisfaction with existing ways of writing HTML. Plain HTML and most templating languages are cumbersome to write. And while modern editors make the experience a lot less painful, with features like auto-closing tags, it still seems a bit backwards to need such heavy tooling to just write it.&lt;/p&gt;
+&lt;p&gt;Some of the more DLS-like templating languages like HAML get a lot closer to what I want, but I am really not a fan of having a separate DSL that is not quite its host language, not quite HTML and also not quite its own language.&lt;/p&gt;
+&lt;p&gt;A better approach, in my mind, was the one found in the &lt;a href="http://leafo.net/lapis/"&gt;lapis&lt;/a&gt; framework, where html is generated from Lua functions (usually moonscript compiled to Lua, which makes for cleaner code) that can be nested. I also wrote my own iteration of this concept in the form of MoonHTML, but eventually abandoned the project because emitting the HTML as a side-effect instead of returning it came with a variety of scalability problems that made it easier for smaller templates but more complex in bigger projects.&lt;/p&gt;
+&lt;p&gt;The result was eventually Skooma (named after a fictional drug in the Elder Scrolls universe, made from a substance called &lt;em&gt;moon sugar&lt;/em&gt;), which I still use to this day whenever I have the need to generate some HTML programmatically or just don't feel like typing out the actual HTML.&lt;/p&gt;
+&lt;p&gt;Given the many similarities between Lua and JavaScript, it was only a matter of time for me to decide to port the concept from one language to another, and the fact that browsers already have a DOM API means that whole part of the library can be removed and the result is still more powerful than working with my custom mini DOM.&lt;/p&gt;
+&lt;h2&gt;Features&lt;/h2&gt;
+&lt;p&gt;Skooma is best explained by example, as a big part of the point is the (relatively) clean-looking code that looks &lt;em&gt;somewhat&lt;/em&gt; like a purpose-built DSL.&lt;/p&gt;
+&lt;pre&gt;&lt;code class="language-js"&gt;import {html} from '/skooma.js'
+
+const user = ({name, email, picture}) =&gt;
+	html.div({class: 'user'},
+		html.img({src: picture}),
+		html.h2(name),
+		html.a(email, {href: `mailto:${email}`})
+	)
+
+fetch_users_from_somewhere()
+	.map(user)
+	.each(document.body.append)
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;In this example, I define a simple &lt;code&gt;user&lt;/code&gt; component that takes an object with some attributes and generates a DOM structure to represent it. The HTML object is a proxy that generates functions for generating DOM nodes as writing &lt;code&gt;html.div(content)&lt;/code&gt; is a lot nicer than &lt;code&gt;html.tag(&quot;div&quot;, content)&lt;/code&gt;. &lt;code&gt;Proxy&lt;/code&gt; really is a vastly underrated JavaScript feature.&lt;/p&gt;
+&lt;p&gt;The outermost &lt;code&gt;div&lt;/code&gt; tag is given three other tags as its children, and an object representing its HTML attributes. This API is very flexible; one can pass several child elements and objects in whatever order and even nest them in arrays (which can then be re-used).&lt;/p&gt;
+&lt;h3&gt;Event Handlers&lt;/h3&gt;
+&lt;p&gt;Since passing functions into HTML attributes makes no sense, this case is used for setting event handlers instead:&lt;/p&gt;
+&lt;pre&gt;&lt;code class="language-js"&gt;html.button(&quot;Click me!&quot;, {
+	click: event =&gt; alert(&quot;Button has been clicked!&quot;)
+})
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;This internally uses &lt;code&gt;addEventListener&lt;/code&gt; instead of setting an &lt;code&gt;onclick&lt;/code&gt; attribute, so this even lets one add several handlers of the same type, albeit in separate objects.&lt;/p&gt;
+&lt;h3&gt;Initialisers&lt;/h3&gt;
+&lt;p&gt;Just like with attributes, putting a function in the child-list of a DOM element makes no sense, so this case is used to simply pass arbitrary initialisers to the element. These get called as soon as they're found instead of deferred, so any arguments that follow will not yet be applied. I have no strong opinion on whether deferring them would make more sense and might implement this if I ever find a good reason to prefer it.&lt;/p&gt;
+&lt;pre&gt;&lt;code class="language-js"&gt;const register = element =&gt; { my_element_registry.add(element) }
+// ^ pretend this gets used somewhere else to do something useful
+
+html.button(&quot;Click me?&quot;, register)
+&lt;/code&gt;&lt;/pre&gt;
+&lt;h3&gt;Dataset&lt;/h3&gt;
+&lt;p&gt;Data-attributes can instead be set by passing a special &lt;code&gt;dataset&lt;/code&gt; object key to an element constructor:&lt;/p&gt;
+&lt;pre&gt;&lt;code class="language-js"&gt;const form_children = [/* ... */]
+html.form({
+	'data-id': '0001', // this is ugly
+	dataset: { id: '0001' }, // this is nicer
+}, form_children)
+
+// Excessively hacky and ugly:
+html.form(
+	Object.fromEntries(Object.entries(user).map(
+		([key, value]) =&gt; [&quot;data-&quot;+key, value])
+	),
+	form_children
+)
+
+// This is how things should be:
+html.form({dataset: user}, form_children)
+&lt;/code&gt;&lt;/pre&gt;
+&lt;h3&gt;Shadow-Root&lt;/h3&gt;
+&lt;p&gt;Likewise, the key &lt;code&gt;shadowRoot&lt;/code&gt; is also special, in that its value is added to the new object's shadow root, which is created if it doesn't exist yet. This follows the same logic as the function's arguments, so it can be a DOM node, a string, or a (possibly nested) array of child elements.&lt;/p&gt;
+&lt;pre&gt;&lt;code class="language-js"&gt;html.div({
+	shadowRoot: [
+		html.h2(&quot;Greetings from the shadow DOM!&quot;),
+		html.slot(),
+		html.span(&quot;It's very shadowy in here...&quot;)
+	]
+}, html.i(&quot;Wait, where am I?!&quot;))
+&lt;/code&gt;&lt;/pre&gt;
+&lt;h3&gt;Styling&lt;/h3&gt;
+&lt;p&gt;Similar to &lt;code&gt;dataset&lt;/code&gt;, the &lt;code&gt;style&lt;/code&gt; attribute can be used to pass an object and have its values assigned to the DOM node's &lt;code&gt;style&lt;/code&gt; attribute.&lt;/p&gt;
+&lt;pre&gt;&lt;code class="language-js"&gt;html.span({
+	style: {
+		textDecoration: 'underline',
+		// gets transformed to kebab-case
+	}
+})
+&lt;/code&gt;&lt;/pre&gt;
+&lt;h3&gt;Custom Elements&lt;/h3&gt;
+&lt;p&gt;Custom elements, which have hyphens in their names, don't have to be created using square braces (although you can, if you hate yourself) &lt;code&gt;html['my-component'](&quot;inner text&quot;)&lt;/code&gt;; instead, camelCase tag names are converted to kebab-case just like style properties and html attributes, so you can just write &lt;code&gt;html.myComponent(&quot;inner text&quot;)&lt;/code&gt; instead.&lt;/p&gt;
+&lt;pre&gt;&lt;code class="language-js"&gt;html.typeWriter({
+	customProperty: &quot;I have a property!&quot;,
+}, [
+	html.span(&quot;Greetings, I am a custom element&quot;),
+])
+&lt;/code&gt;&lt;/pre&gt;
+&lt;h2&gt;As a Learning Experience&lt;/h2&gt;
+&lt;p&gt;All in all, this was a really fun project to implement. &lt;code&gt;Proxy&lt;/code&gt; objects are really nice, and porting the code from Lua, which has a completely different way of doing a very similar thing, was ultimately still really easy. And even though I only used a small part of the &lt;code&gt;Proxy&lt;/code&gt; API, I still used the chance to read up on some of the other possibilities it offers. &lt;code&gt;Proxy&lt;/code&gt; is cool!&lt;/p&gt;
+&lt;h2&gt;Comparing to Alternatives&lt;/h2&gt;
+&lt;h3&gt;Interpolation++&lt;/h3&gt;
+&lt;p&gt;Comparing skooma.js to anything from &lt;code&gt;String ${'templates'}&lt;/code&gt; to traditional PHP, where you still write HTML but can interpolate content into your output and sometimes even insert blocks of logic into it, skooma does as good a job as all the alternatives below at getting rid of my primary problem: HTMLs annoying syntax.&lt;/p&gt;
+&lt;h3&gt;HAML &amp; Co.&lt;/h3&gt;
+&lt;p&gt;These templating &quot;languages&quot; honestly aren't bad. I am perfectly happy writing HAML templates whenever I'm having to work with rails, and any of its alternatives in other languages would work as well.&lt;/p&gt;
+&lt;p&gt;My main problems with these are the context-switching between languages, and the fact that it's not nearly as easy to refactor by extracting common structures into sub-components, as you can't just draw them out into a function and use it later on.&lt;/p&gt;
+&lt;h3&gt;VanJS&lt;/h3&gt;
+&lt;p&gt;Had I found this library before writing Skooma, I probably would have just used it instead. It does basically the same thing, albeit with less convenience features, and will most likely still use this for work projects, as it has the benefit of being a &quot;proper&quot; framework (i.e. I didn't write it myself and it has a fancy website), so it will simply seem more legitimate to coworkers. Gotta love workplace politics.&lt;/p&gt;
+&lt;p&gt;I will say though, that I am not at all a fan of how it encourages importing all the tag functions into the current scope. That just screams scalability nightmare, and in any bigger project this will inevitably lead to a) lots of unused tag functions still being declared and b) constant &quot;why isn't it wor— oh I haven't imported &lt;code&gt;ul&lt;/code&gt; yet&quot;&lt;/p&gt;
+&lt;p&gt;But that's just a style choice and the library doesn't force you to do things that way.&lt;/p&gt;
+&lt;h3&gt;Skooma (Lua)&lt;/h3&gt;
+&lt;p&gt;This is, to me, the gold standard of syntax. Lua has some small advantages in its syntax that make it easier to make code look nice:&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;Ommitting braces when calling a function with a table literal as its only argument&lt;/li&gt;
+&lt;li&gt;Tables acting both as arrays and maps&lt;/li&gt;
+&lt;li&gt;Semicolons being allowed instead of commas (I hate commas for multi-line things)&lt;/li&gt;
+&lt;li&gt;Overriding &lt;code&gt;_ENV&lt;/code&gt; and loading code with custom environments&lt;/li&gt;
+&lt;/ol&gt;
+&lt;p&gt;So the &lt;code&gt;user&lt;/code&gt; component from my first example could instead be written like this:&lt;/p&gt;
+&lt;pre&gt;&lt;code class="language-lua"&gt;function user(u)
+	return div{
+		class = &quot;user&quot;;
+		img { src = u.picture };
+		h2 { name };
+		a {
+			email;
+			href: &quot;mailto:&quot; .. u.email
+		}
+	}
+end
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;And if I want to instead write it in moonscript or yuescript, a language (and a dialect of it) that compiles to Lua, I could even write my component like this:&lt;/p&gt;
+&lt;pre&gt;&lt;code class="language-moon"&gt;user ==&gt;
+	div class: &quot;user&quot;
+		* img src: @picture
+		* h2 name
+		* a email, href: &quot;mailto:#{@email}&quot;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;which is starting to look almost like an actual DSL, except it's not, and I can put as much &quot;real programming logic&quot; like loops, function calls, etc. right in my HTML code and the syntax is the exact same between logic and template.&lt;/p&gt;
+&lt;p&gt;Admittedly, I could &lt;em&gt;probably&lt;/em&gt; achieve the same in JS if I used something like CoffeeScript.&lt;/p&gt;
+&lt;h2&gt;Conclusions&lt;/h2&gt;
+&lt;ol&gt;
+&lt;li&gt;Writing this library was definitely worth it. It was fun, I got to practise using &lt;code&gt;Proxy&lt;/code&gt; and the result is definitely quite usable. I would absolutely do this again and encourage anyone to try projects like this one even if just for the fun aspect alone.&lt;/li&gt;
+&lt;li&gt;I already am and will continue to use skooma.js for my personal projects. Once I got used to it, it just feels weird to imagine using things like JSX or even assembling DOM nodes by hand using browser APIs.&lt;/li&gt;
+&lt;li&gt;I can't really be bothered to lobby people to use my cute little project and turn it into a &quot;real thing&quot;, but if you're interested, or maybe even use VanJS and want to see how it compares, by all means, use Skooma. It's as production-ready as a single dev can make it, and due to its simplicity, bugs happen rarely and can usually be fixed within half an hour. Documentation is available at &lt;a href="https://darkwiiplayer.github.io/js/skooma.html"&gt;darkwiiplayer.github.io/js/skooma.html&lt;/a&gt;&lt;/li&gt;
+&lt;/ol&gt;
+</content><link>https://blog.but.gay/2023/08/06/making_the_case_for_skooma.html</link><guid>https://blog.but.gay/2023/08/06/making_the_case_for_skooma.html</guid><pubDate>06 Aug 2023</pubDate></item><item><title>What is CSS @scope and why should I care?</title><description>A short introduction to the new CSS @scope rule, the history of CSS scoping and what makes it useful for different areas of web-development</description><content type="html">&lt;h2&gt;A brief history of Scoping and CSS&lt;/h2&gt;
+&lt;p&gt;Scoping CSS to certain regions of the DOM is not a new idea.&lt;/p&gt;
+&lt;p&gt;The &lt;code&gt;scope&lt;/code&gt; attribute for &lt;code&gt;&lt;style&gt;&lt;/code&gt; tags was one attempt at addressing it. Nowadays, it is sadly deprecated though.&lt;/p&gt;
+&lt;pre&gt;&lt;code class="language-css"&gt;/* ⚠ This is deprecated. It doesn't and won't work ⚠ */
+&lt;div&gt;
+   &lt;style scope&gt;p { color: red; }&lt;/style&gt;
+   &lt;p&gt;Red Text&lt;/p&gt;
+&lt;/div&gt;
+&lt;p&gt;Normal Text&lt;/p&gt;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;Many front-end frameworks implement their own scoping by prefixing CSS rules with IDs and classes and adding those to their HTML output. However, this requires a lot of complexity in the framework and is still brittle.&lt;/p&gt;
+&lt;p&gt;Then components came into the browser, in the form of custom elements and shadow-DOM. In fact, one part of shadow-DOM is that all the CSS inside it is scoped. However, it doesn't permit outside CSS to leak inside either.&lt;/p&gt;
+&lt;h2&gt;Native Scoping is still on the table&lt;/h2&gt;
+&lt;p&gt;The exact reason why &lt;code&gt;scope&lt;/code&gt; was originally abandoned seems a bit fuzzy. Some will tell you it was because browsers didn't want to implement it, others say that it was just about letting web components become a thing, then re-evaluate the need for pure CSS scoping.&lt;/p&gt;
+&lt;p&gt;Whatever the case may be, CSS authors still seem to have an interest in scoping being a thing, for a variety of reasons.&lt;/p&gt;
+&lt;h2&gt;CSS Scoping Revived: &lt;code&gt;@scope&lt;/code&gt;&lt;/h2&gt;
+&lt;p&gt;The &lt;code&gt;@scope&lt;/code&gt; rule is the newest attempt at bringing CSS scoping to the browser. It is described in the &lt;a href="https://www.w3.org/TR/css-cascade-6/#scoped-styles"&gt;Working Draft&lt;/a&gt; of the &lt;em&gt;CSS Cascading and Inheritance Level 6&lt;/em&gt; specification.&lt;/p&gt;
+&lt;p&gt;In other words: it's far from being usable. But there's still plenty of reasons to be hyped about it! 😁&lt;/p&gt;
+&lt;hr /&gt;
+&lt;p&gt;The way this would work is simple: we would first define where we want our rules to apply. We can use any CSS selector here, but to avoid distractions, I will be using the &lt;code&gt;outer-component&lt;/code&gt; and &lt;code&gt;inner-component&lt;/code&gt; custom elements for the rest of this article.&lt;/p&gt;
+&lt;pre&gt;&lt;code class="language-css"&gt;@scope (outer-component) {
+   p { color: red; }
+}
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;Any rules written inside this scope block will only apply inside an element described by the selector.&lt;/p&gt;
+&lt;pre&gt;&lt;code class="language-html"&gt;&lt;p&gt;This text is black&lt;/p&gt;
+&lt;outer-component&gt;
+   &lt;p&gt;This text is red&lt;/p&gt;
+&lt;/outer-component&gt;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;And we can also describe a lower boundary to this scope; another selector telling the browser that the scope should &lt;em&gt;not&lt;/em&gt; apply to a certain sub-tree.&lt;/p&gt;
+&lt;pre&gt;&lt;code class="language-css"&gt;@scope (outer-component) to (inner-component) {
+   p { color: red; }
+}
+&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code class="language-html"&gt;&lt;outer-component&gt;
+   &lt;p&gt;This text is red&lt;/p&gt;
+   &lt;inner-component&gt;
+      &lt;p&gt;This text is black&lt;/p&gt;
+   &lt;/inner-component&gt;
+&lt;/outer-component&gt;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;h2&gt;Why should we be hyped about it?&lt;/h2&gt;
+&lt;p&gt;The example with two nested custom elements already shows one possible use-case. Having styles apply only inside specific components without prefixing every selector with the component name is already useful.&lt;/p&gt;
+&lt;p&gt;But the addition of a lower boundary to prevent styles from leeking into nested components makes this incredibly useful, specialy in the modern front-end landscape is constantly moving away from monolithic structures and towards small, portable and interchangeable components.&lt;/p&gt;
+&lt;p&gt;If you're writing plain CSS for some vanilla JS components, you will be able to write CSS that's much more similar to what frameworks like svelte allow you to do: Write a bunch of rules and they will only apply inside the component. Imagine doing that with direct-child selectors 😵‍💫&lt;/p&gt;
+&lt;p&gt;here's an example of where this could be useful without any components or custom elements:&lt;/p&gt;
+&lt;pre&gt;&lt;code class="language-css"&gt;th { background: black; color: white; }
+@scope (table.vertical) to (table) {
+   th::after { content: ':' }
+   th { all: initial; }
+}
+&lt;/code&gt;&lt;/pre&gt;
+&lt;hr /&gt;
+&lt;p&gt;Meanwhile, for authors of such component frameworks, native CSS scoping will vastly reduce the complexity they have to deal with as they will no longer have to automatically prefix selectors nor add IDs or classes to the elements they should apply to.&lt;/p&gt;
+&lt;p&gt;A somewhat simplified version of what such a framework could do:&lt;/p&gt;
+&lt;pre&gt;&lt;code class="language-js"&gt;component_css = `
+	@scope ([data-component=&quot;${component.name}&quot;]) to ([data-component]) {
+		${component.styles}
+	}
+`
+&lt;/code&gt;&lt;/pre&gt;
+&lt;hr /&gt;
+&lt;p&gt;Even if you just use these frameworks, which already implement CSS scoping, there might be some benefits for you. Most importantly: since the scoping happens in the browser at runtime, frameworks don't need to know about your elements in order to style them, so there will be much less friction between frameworks and manually generated content. Inserting some HTML via &lt;code&gt;.appendChild()&lt;/code&gt; would &quot;just work&quot;.&lt;/p&gt;
+&lt;pre&gt;&lt;code class="language-js"&gt;// No code example for this one, because these problems only tend
+// to surface once the project becomes a little bit more complex
+// and several libraries trying to work together.
+&lt;/code&gt;&lt;/pre&gt;
+</content><link>https://blog.but.gay/2022/03/16/what_is_css_scope_and_why_should_i_care.html</link><guid>https://blog.but.gay/2022/03/16/what_is_css_scope_and_why_should_i_care.html</guid><pubDate>16 Mar 2022</pubDate></item><item><title>An Introduction to Coroutines</title><description>A language-agnostic introduction to the concept of Coroutines</description><content type="html">&lt;h2&gt;Preamble&lt;/h2&gt;
+&lt;p&gt;The aim of this article is to be a mostly language-agnostic introduction to coroutines. All code used will be a pseudocode, which will somewhat resemble JavaScript.&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;Subroutines are defined as &lt;code&gt;arguments ⇒ body&lt;/code&gt;&lt;/li&gt;
+&lt;li&gt;Subroutines without arguments will be shortened to &lt;code&gt;⇒ body&lt;/code&gt;&lt;/li&gt;
+&lt;li&gt;Multi-statement subroutines use braces &lt;code&gt;{}&lt;/code&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2&gt;What are Coroutines?&lt;/h2&gt;
+&lt;p&gt;In describing coroutines, the introductory sentence of the &lt;a href="https://en.wikipedia.org/wiki/Coroutine"&gt;wikipedia article&lt;/a&gt; already gets very close to the way I would describe it:&lt;/p&gt;
+&lt;blockquote&gt;
+&lt;p&gt;&lt;strong&gt;Coroutines&lt;/strong&gt; are &lt;a href="https://en.wikipedia.org/wiki/Computer_program" title="Computer program"&gt;computer program&lt;/a&gt; components that generalize &lt;a href="https://en.wikipedia.org/wiki/Subroutine" title="Subroutine"&gt;subroutines&lt;/a&gt; for &lt;a href="https://en.wikipedia.org/wiki/Non-preemptive_multitasking" title="Non-preemptive multitasking"&gt;non-preemptive multitasking&lt;/a&gt;, by allowing execution to be suspended and resumed.&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;p&gt;Put even more simply: A coroutine is &lt;em&gt;like a function&lt;/em&gt; that can pause itself.
+If we think of a normal function, the way it works is that we &lt;strong&gt;call&lt;/strong&gt; the function, the function &lt;strong&gt;executes&lt;/strong&gt; and at some point, it &lt;strong&gt;returns&lt;/strong&gt; back to where it was called.&lt;/p&gt;
+&lt;p&gt;In a similar way, a very simple coroutine will do the same thing: We will &lt;strong&gt;create&lt;/strong&gt; the coroutine, it will &lt;strong&gt;execute&lt;/strong&gt; and at some point it will end and (implicitly) &lt;strong&gt;yield&lt;/strong&gt; back to the calling code.&lt;/p&gt;
+&lt;p&gt;Here is a simple example of how this looks in practice.&lt;/p&gt;
+&lt;p&gt;First we define a new coroutine that yields three times and finally prints &quot;Done&quot;&lt;/p&gt;
+&lt;pre&gt;&lt;code class="language-js"&gt;my_coro = coroutine(=&gt; {
+    yield(1)
+    yield(2)
+    yield(3)
+    print(&quot;Done&quot;)
+})
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;Now we can resume the coroutine up to 4 times, and each time it will resume from the last &lt;code&gt;yield&lt;/code&gt; and stop at the next one, or when it reaches the end of the subroutine.&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;first_yield = resume(coro)
+// At this point the coroutine is paused on its first line
+print(first_yield) // prints 1
+
+second_yield = resume(coro)
+// At this point the coroutine is paused on its second line
+print(second_yield) // prints 2
+
+third_yield = resume(coro)
+// At this point the coroutine is paused on its third line
+print(third_yield) // prints 3
+
+resume(coro) // prints &quot;Done&quot;
+// At this point the coroutine has completed its execution.
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;The big difference is: A coroutine can &lt;strong&gt;yield&lt;/strong&gt; more than once, and will be paused in between. And that is really all there is to them, from a technical level. A simple example of this would look like this.&lt;/p&gt;
+&lt;h2&gt;Classifying Coroutines&lt;/h2&gt;
+&lt;p&gt;The 2004 paper &lt;a href="http://www.inf.puc-rio.br/~roberto/docs/MCC15-04.pdf"&gt;Revisiting Coroutines&lt;/a&gt; classifies coroutines in two important ways: &lt;em&gt;Symmetric vs. Asymmetric&lt;/em&gt; and &lt;em&gt;Stackful vs. Stackless&lt;/em&gt;. The paper also distinguishes on whether coroutines are handled as values by the language, but that distinction is less important to understanding how they fundamentally work.&lt;/p&gt;
+&lt;h3&gt;Control Transfer Mechanism&lt;/h3&gt;
+&lt;p&gt;The way coroutines transfer control can happen in two ways.&lt;/p&gt;
+&lt;p&gt;Asymmetric coroutines are more similar to how functions work. When a coroutine &lt;em&gt;A&lt;/em&gt; resumes a coroutine &lt;em&gt;B&lt;/em&gt;, &lt;em&gt;B&lt;/em&gt; will at some point yield back to &lt;em&gt;A&lt;/em&gt;, just like how any function will eventually return to its caller. We can think of these coroutines as organised in a stack, just like how functions are, but this is not the same as being &lt;em&gt;stackful&lt;/em&gt;.&lt;/p&gt;
+&lt;p&gt;An important implication of this type of control transfer is that once a coroutine hands over control to another by resuming it, it can only ever be handed back control from this coroutine. In other words, it cannot be &lt;em&gt;resumed&lt;/em&gt; from the outside, as it is already &quot;running&quot;, only &lt;em&gt;yielded&lt;/em&gt; to.&lt;/p&gt;
+&lt;p&gt;To illustrate this: &quot;When you lend a pencil to Bob, you know you will eventually get the pencil back from Bob and nobody else.&quot;&lt;/p&gt;
+&lt;p&gt;This will be represented in pseudocode by the functions &lt;code&gt;resume&lt;/code&gt; (&quot;hand control down&quot;) and &lt;code&gt;yield&lt;/code&gt; (&quot;return control back up&quot;)&lt;/p&gt;
+&lt;p&gt;In the previous section, the example represented this kind of coroutine. It handed over control three times using the &lt;code&gt;yield&lt;/code&gt; function without specifying where to hand control back to. It simply went back to wherever the coroutine was resumed from.&lt;/p&gt;
+&lt;hr /&gt;
+&lt;p&gt;Symmetric coroutines work a bit differently. Coroutines can freely transfer control to any other coroutine, instead of just &quot;up and down&quot;.&lt;/p&gt;
+&lt;p&gt;Unlike asymmetric coroutines, this one-way control transfer means a coroutine can hand over control to another and be handed back control by a completely different one.&lt;/p&gt;
+&lt;p&gt;Continuing the pencil analogy: &quot;When you lend a pencil to Bob, you may later get it back from Steve, Larry, or never get it back at all.&quot;&lt;/p&gt;
+&lt;p&gt;In pseudocode, this will be represented by the &lt;code&gt;transfer&lt;/code&gt; function.&lt;/p&gt;
+&lt;hr /&gt;
+&lt;p&gt;The main advantage of asymmetric coroutines is that they offer more structure. Symmetric coroutines let the user freely jump back and forth between coroutines, in a similar way to &lt;code&gt;goto&lt;/code&gt; statements, which grants a much higher degree of freedom but can also make code hard to follow.&lt;/p&gt;
+&lt;h3&gt;Stackfulness&lt;/h3&gt;
+&lt;p&gt;Another important way to categorize coroutines is whether every coroutine has its own stack. This distinction is much harder to explain in theory, but will become clear in examples later on.&lt;/p&gt;
+&lt;p&gt;Stackless coroutines, as the name implies, don't have their own call stack. What this means in practice is that the program has no way of tracking their call stack once they yield control, so this is only possible from the function on the bottom of the stack.&lt;/p&gt;
+&lt;p&gt;Stackful coroutines, on the other hand, have a separate stack for every coroutine, so they can be paused from anywhere inside the coroutine.&lt;/p&gt;
+&lt;p&gt;A complete explanation of why this is and how it works could easily be its own article, so I will be skipping it for now. The important part to remember here is that Stacful is &quot;better&quot; in that it lets you do more, but also harder to implement in a language, specially if it was added later on and not part of the initial language design.&lt;/p&gt;
+&lt;hr /&gt;
+&lt;p&gt;Many programming languages actually have &lt;em&gt;stackless&lt;/em&gt; &lt;em&gt;asymmetric&lt;/em&gt; coroutines; JavaScript, for example, calls them &lt;em&gt;generators&lt;/em&gt;.&lt;/p&gt;
+&lt;p&gt;Some languages even have a mix of both: Ruby &lt;em&gt;fibers&lt;/em&gt; can both use &lt;code&gt;resume&lt;/code&gt;/&lt;code&gt;yield&lt;/code&gt; semantics, but they can also freely transfer control freely with the &lt;code&gt;transfer&lt;/code&gt; method.&lt;/p&gt;
+&lt;p&gt;Windows even provides an OS-level API for coroutines: It calls them Fibers, and they are &lt;em&gt;stackful&lt;/em&gt; and &lt;em&gt;symmetric&lt;/em&gt;. Linux does not provide any coroutine API yet.&lt;/p&gt;
+&lt;h2&gt;Why are they useful?&lt;/h2&gt;
+&lt;p&gt;On an abstract level, the strength of coroutines is to manage state. Since they remember where they left off for the next time they're resumed, they can use control-flow to save state that would otherwise have to be stored in variables.&lt;/p&gt;
+&lt;h3&gt;Animation&lt;/h3&gt;
+&lt;p&gt;As a simple example, imagine an object in a game. The object has an &lt;code&gt;update&lt;/code&gt; function that will be called repeatedly by the engine, and as an argument, it will receive the time (in seconds) since the last time it was called. This is a very typical setup for simpler games.&lt;/p&gt;
+&lt;p&gt;Implementing a simple animation, for example, along the edges of a square, would require storing the animation state in some sort of data-structure so the &lt;code&gt;update&lt;/code&gt; function knows where to continue the animation. Although in this case one &lt;em&gt;might&lt;/em&gt; be able to get away with just &lt;code&gt;x&lt;/code&gt; and &lt;code&gt;y&lt;/code&gt; coordinates (which are likely already present in the object) and some convoluted if/else logic, this code would still look unintuitive.&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;Coroutines to the rescue!&lt;/strong&gt; Now consider extending the setup like this:&lt;/p&gt;
+&lt;p&gt;Along with the &lt;code&gt;x&lt;/code&gt; and &lt;code&gt;y&lt;/code&gt; attributes, the object also has a &lt;code&gt;behavior&lt;/code&gt; coroutine. The only thing the &lt;code&gt;update&lt;/code&gt; method does, is to resume this coroutine every time.&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;object.update = delta_time ⇒ resume(object.behavior, delta_time)
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;&lt;code&gt;resume&lt;/code&gt;, in this pseudocode language, is the function that resumes a suspended coroutine asymmetrically, meaning it will pause the code here until the resumed coroutine yields.&lt;/p&gt;
+&lt;p&gt;For this to work, a bit of extra semantics has to be introduced: Just how functions can have &lt;em&gt;arguments&lt;/em&gt;, it is common that &lt;em&gt;yielding&lt;/em&gt; and &lt;em&gt;resuming&lt;/em&gt; coroutines can also pass arguments along. In the above pseudocode, this will be represented as an extra argument to both &lt;code&gt;resume&lt;/code&gt; and &lt;code&gt;yield&lt;/code&gt;, that would be &lt;em&gt;returned&lt;/em&gt; by the matching &lt;code&gt;yield&lt;/code&gt; and &lt;code&gt;resume&lt;/code&gt; calls. This is a very common way to handle passing around data between asymmetric coroutines.&lt;/p&gt;
+&lt;p&gt;Now, with this setup, the &lt;code&gt;behavior&lt;/code&gt; coroutine could look something like this:&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;object.behavior = coroutine( ⇒ {
+	while true {
+		while object.x &lt; 10
+			object.x += yield() * object.speed
+		while object.y &lt; 10
+			object.y += yield() * object.speed
+		while object.x &gt; 0
+			object.x -= yield() * object.speed
+		while object.y &gt; 0
+			object.y -= yield() * object.speed
+	}
+)
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;where &lt;code&gt;coroutine&lt;/code&gt; is a function that takes a subroutine and turns it into a coroutine, without actually starting it and &lt;code&gt;yield&lt;/code&gt; is a function that suspends the current coroutine and yields back to the &quot;parent&quot; coroutine that resumed it.&lt;/p&gt;
+&lt;p&gt;It looks a bit like magic. The animation code &lt;em&gt;looks&lt;/em&gt; like it should simply block the game in an endless loop, but it doesn't, because it runs inside a coroutine that yields after every step. But the state of the animation is still represented as a simple nested loop.&lt;/p&gt;
+&lt;p&gt;This can be taken a step further though. Consider the following example:&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;object.behavior = coroutine ( ⇒ {
+	while true {
+		object.move_right(10)
+		object.move_down(10)
+		object.move_left(10)
+		object.move_up(10)
+	}
+})
+
+object.move_right = distance ⇒ {
+	while distance &gt; 0
+		delta_x = yield() * object.speed
+		object.x += delta_x
+		distance -= delta_x
+}
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;This could be refactored into a single &lt;code&gt;move(axis, distance)&lt;/code&gt; function, of course; but the additional code to figure out the direction would clutter the code a bit too much for this example.&lt;/p&gt;
+&lt;p&gt;The important thing here is, that the top-level function of the coroutine never &lt;code&gt;yield&lt;/code&gt;s; instead, it calls a &lt;code&gt;move_*&lt;/code&gt; function that takes care of yielding itself. This is where &lt;strong&gt;stackfulnes&lt;/strong&gt; comes into play again: Only &lt;strong&gt;stackful&lt;/strong&gt; coroutines can do this. In languages with stackless coroutines, like javascript, code like this would likely be rejected by the compiler.&lt;/p&gt;
+&lt;p&gt;Put very simply: the reason for this is that when &lt;code&gt;move_right&lt;/code&gt; yields, it needs to remember where it needs to return to after it resumes. This information is what's on the stack, so a coroutine without its own stack cannot remember from nested functions.&lt;/p&gt;
+&lt;h3&gt;I/O Event Loops&lt;/h3&gt;
+&lt;p&gt;Another application of coroutines is handling the complexity if asynchronous code. Lua has done this for years now, Ruby recently adopted the same idea, and languages like Elixir have been doing a very similar thing as part of the language for ages.&lt;/p&gt;
+&lt;p&gt;But how exactly can coroutines help with this? Simple: by yielding to an event-loop, which will resume them once a certain event happens. While in practice this is a bit more complicated, the core idea is this:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;All code runs inside coroutines (In some languages this is always the case, in others it would be up to a framework to run any user code in a coroutine)&lt;/li&gt;
+&lt;li&gt;Functions that need to await asynchronous tasks simply start an I/O operation, then yield some object describing when to resume them back to the top level coroutine&lt;/li&gt;
+&lt;li&gt;When a coroutine yields, a scheduler will decide what coroutine to resume next, or simply sleep until any new &quot;event&quot; is available.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;This should sound very familiar to anybody who has worked with &lt;code&gt;async&lt;/code&gt;/&lt;code&gt;await&lt;/code&gt; before. It is a very similar concept. Then only difference is that functions are always synchronous, and all functions are implicitly awaited.&lt;/p&gt;
+&lt;p&gt;This has one significant advantage: While the program itself either uses non-blocking IO or APIs that resume it whenever any of the awaited inputs is available, the user writes codes that &lt;em&gt;looks&lt;/em&gt; like blocking code. And it is in fact &quot;blocking&quot;, on the level of the coroutine, but will never block other parts  of the same program.&lt;/p&gt;
+&lt;p&gt;At the same time, this is still cooperative multi-threading, so no section of code will be interrupted from the outside. Only operations that yield can lead to race-conditions, but two consecutive non-yielding operations will never have their state messed with in between.&lt;/p&gt;
+&lt;p&gt;This makes unsafe code much easier to spot:&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;c = global(counter)
+c = c + 1
+global(counter) = c
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;The above code is very obviously safe, because the code will never be suspended for other code to run in the meantime.&lt;/p&gt;
+&lt;p&gt;In a multi-threaded environment, this code could lead to errors: the scheduler could suspend this thread after the first line, and some other thread could increment the counter. Then, when this thread was resumed, the third line would overwrite the &lt;code&gt;counter&lt;/code&gt; variable with an old value.&lt;/p&gt;
+&lt;hr /&gt;
+&lt;p&gt;With coroutines, it is still possible to write buggy code susceptible to race-conditions, but only by explicitly yielding, or calling a function that does so.&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;c = global(counter)
+c = c + 1
+sleep(3)
+global(counter) = c
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;This code is obviously unsafe: in the 3 seconds that this coroutine is sleeping, some other code may also increment the counter, which would then be overwritten by this coroutine after it resumes.&lt;/p&gt;
+&lt;p&gt;However, we can safely assume that the code will &lt;em&gt;never&lt;/em&gt; be interrupted between the first and the second line, or even worse, in between two steps of the same line.&lt;/p&gt;
+&lt;hr /&gt;
+&lt;h2&gt;Conclusion&lt;/h2&gt;
+&lt;p&gt;There is, of course, lots more to be said about coroutines, and how they a reintegrated in different languages. But this introduction should give a good enough idea of how they fundamentally work.&lt;/p&gt;
+</content><link>https://blog.but.gay/2021/11/20/an_introduction_to_coroutines.html</link><guid>https://blog.but.gay/2021/11/20/an_introduction_to_coroutines.html</guid><pubDate>20 Nov 2021</pubDate></item><item><title>Type-Writer Component: Magic and Asynchronicity</title><description>A detailed description of the development process of an HTML TypeWriter element in plain JavaScript using the custom-element API, meta-programming and some recursion magic.</description><content type="html">&lt;h2&gt;Backstory&lt;/h2&gt;
+&lt;p&gt;A few weeks ago, I built a simple type-writer web component: a user would load a JavaScript module and define a &lt;code&gt;&lt;type-writer&gt;&lt;/code&gt; element with several lines of text. The component would then type out the first line of text, delete it again and rotate it to the back of the list.&lt;/p&gt;
+&lt;pre&gt;&lt;code class="language-html"&gt;&lt;type-writer&gt;
+	Here's a first line
+	And here's another
+	Only plain text supported
+&lt;/type-writer&gt;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;This worked well for simple cases, but it was obviously very limited. What if you wanted one word to be emphazised? Or have a line-break? The obvious solution was to extend this component to reproduce an entire DOM-Subtree.&lt;/p&gt;
+&lt;p&gt;Fast-forward to today, and I find this very nice &lt;a href="https://dev.to/auroratide/a-typewriter-but-using-a-new-html-tag-60i"&gt;article&lt;/a&gt; on Dev.to showing off a custom component that does just this. This made it clear: I couldn't just leave my component as it was; it had to be brought to the same level. And so I started coding...&lt;/p&gt;
+&lt;p&gt;My aim for this article is to use this example to explain some of the nicer things one can do with web components without using any frameworks or libraries. Just one file of JS that runs out of the box in any modern browser.&lt;/p&gt;
+&lt;p&gt;I'll be trying to reproduce my thought process to some extent, but won't be following the same timeline of when I built this, since features got added piece by piece as it tends to be with programming, and I'd much rather group them by the concepts they rely on.&lt;/p&gt;
+&lt;h2&gt;Async&lt;/h2&gt;
+&lt;p&gt;One of the first things I figured out while building this component was that object methods can be &lt;code&gt;async&lt;/code&gt;. Of course they can, they're just functions, after all. But for whatever reason, I didn't expect to be able to just put &lt;code&gt;async&lt;/code&gt; in front of a normal method definition, but apparently that works perfectly well.&lt;/p&gt;
+&lt;p&gt;So why is this important? Well to slowly type out some text, one needs some sort of loop that can suspend its execution. Yes, one could also work with callbacks or promises, but it's 2021 and I just don't see a reason not to write blocking-style code instead using &lt;code&gt;async&lt;/code&gt; and &lt;code&gt;await&lt;/code&gt;.&lt;/p&gt;
+&lt;p&gt;So that's the starting point: an &lt;code&gt;async run()&lt;/code&gt;  method that contains the main animation loop.&lt;/p&gt;
+&lt;p&gt;Since the only thing worth &lt;code&gt;await&lt;/code&gt;ing in this case is a timeout, I needed a wrapper around &lt;code&gt;window.setTimeout&lt;/code&gt;, which I put at the top of my file:&lt;/p&gt;
+&lt;pre&gt;&lt;code class="language-js"&gt;const sleep = time =&gt; new Promise(done =&gt; setTimeout(done, time*1e3))
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;No magic here: simply create a new promise and resolve it after &lt;code&gt;time&lt;/code&gt; seconds. Yes, seconds, the SI unit for time. We're writing code in the 21st century and floating point numbers have been around for long enough that there's no benefit in using milliseconds whatsoever other than being used to it. Even POSIX uses seconds for sleep timeouts, so that's what I'm doing.&lt;/p&gt;
+&lt;p&gt;With that out of the way, here's what a very basic &lt;code&gt;run()&lt;/code&gt; method would look like, before adding further features:&lt;/p&gt;
+&lt;pre&gt;&lt;code class="language-js"&gt;async run() {
+	while (true) {
+		// Next item to type out
+		let subject = this.children[0]
+		// Make a copy in case the original changes while we're typing it
+		let content = subject.cloneNode(true)
+		// Rotate the subject to the back
+		subject.remove()
+		this.append(subject)
+
+		await this.typeElement(this.shadowRoot, content)
+		await this.emptyElement(this.shadowRoot)
+	}
+}
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;The important part here are the two functions at the end: These will take care of typing out our cloned element recursively, then deleting it again. The target will be a shadow DOM attached to the custom property in its &lt;code&gt;connectedCallback&lt;/code&gt;.&lt;/p&gt;
+&lt;h2&gt;Optional Looping&lt;/h2&gt;
+&lt;p&gt;So now we have an infinite loop, which might not be what the user wants. We need an option to turn the looping on or off. This is actually quite easy though! After all, the loop is just an asynchronous function.&lt;/p&gt;
+&lt;pre&gt;&lt;code class="language-js"&gt;if (!this.loop) return
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;So we can simply return from it at the end of the iteration. What's more, this means that we can disable looping at any moment, and the type-writer will finish the current iteration and then stop.
+To resume typing, we'd simply have to call the &lt;code&gt;run()&lt;/code&gt; method again.&lt;/p&gt;
+&lt;p&gt;But this leads us to another problem: what if we call &lt;code&gt;run()&lt;/code&gt; while the loop is already running? To avoid this, I simply added a state variable to the class, and for user convenience, exposed it as read-only:&lt;/p&gt;
+&lt;pre&gt;&lt;code class="language-js"&gt;#running
+get running() { return this.#running }
+
+// ...
+
+async run() {
+	while (true) {
+		if (this.running) return
+		this.#running = true
+		// The rest of the code
+		if (!this.loop) {
+			this.#running=false
+			return
+		}
+	}
+}
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;Now users can query the read-only property &lt;code&gt;TypeWriter.running&lt;/code&gt; and they call &lt;code&gt;run()&lt;/code&gt; a second time, it will simply return immediately.&lt;/p&gt;
+&lt;h2&gt;Typing&lt;/h2&gt;
+&lt;p&gt;The central part of the element is, of course, the part where it types out the contents. The biggest difficulty here is, that we don't deal with text, but a (potentially very deep) DOM subtree, and we need to type out characters one by one while reproducing the surrounding HTML structure; but we can't type out the HTML text because that's not visible to the user.&lt;/p&gt;
+&lt;p&gt;A simple solution to this problem is a set of functions, one that loops over the HTML elements recursively and one that handles the actual text content of these elements.&lt;/p&gt;
+&lt;p&gt;Starting with a function that handles HTML elements, the basic structure would look something like this:&lt;/p&gt;
+&lt;pre&gt;&lt;code class="language-js"&gt;async typeElement(target, elem) {
+	for (let child of elem.childNodes) {
+		if (&quot;data&quot; in child) {
+			await this.typeText(target, child.textContent.replace(/\s+/g, ' '))
+		} else {
+			let copy = child.cloneNode(false)
+			target.append(copy)
+			await this.typeElement(copy, child)
+		}
+	}
+}
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;The only two things worth pointing out here are that, before passing the content of a text node to &lt;code&gt;typeText&lt;/code&gt;, all clusters of whitespace are replaced with a single space to mimic how HTML is rendered anyway. This would mean &lt;code&gt;&lt;pre&gt;&lt;/code&gt; nodes don't work, so that's something to put on a list of future improvements. The other noteworthy thing is that &lt;code&gt;&quot;data&quot; in child&lt;/code&gt; is probably not the best way to check for text nodes, but it does work.&lt;/p&gt;
+&lt;p&gt;For non-text nodes, the function inserts a shallow copy of the given node, appends it to the target and recursively calls itself.&lt;/p&gt;
+&lt;p&gt;Of course, all function calls need an &lt;code&gt;await&lt;/code&gt; keyword, as both &lt;code&gt;typeText&lt;/code&gt; and &lt;code&gt;typeElement&lt;/code&gt; are asynchronous.&lt;/p&gt;
+&lt;p&gt;The &lt;code&gt;typeText&lt;/code&gt; function is even simpler:&lt;/p&gt;
+&lt;pre&gt;&lt;code class="language-js"&gt;async typeText(target, text) {
+	let node = document.createTextNode('')
+	target.append(node)
+	for (let char of text.split('')) {
+		node.appendData(char)
+		await sleep(this.type)
+	}
+}
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;all it needs to do is iterate over the string character-by-character and append them to the target node, sleeping for a certain time in between each character.&lt;/p&gt;
+&lt;h2&gt;Deleting&lt;/h2&gt;
+&lt;p&gt;Deleting of elements looks very similar to typing, except it has to be mirrored. For example, the &lt;code&gt;emptyText&lt;/code&gt; method will have to remove characters from the back:&lt;/p&gt;
+&lt;pre&gt;&lt;code class="language-js"&gt;async emptyText(target) {
+	while (target.data.length) {
+		target.data = target.data.slice(0, -1)
+		await sleep(this.back)
+	}
+}
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;and the &lt;code&gt;emptyElement&lt;/code&gt; function will have to iterate over child elements backwards, deleting them after they have been emptied:&lt;/p&gt;
+&lt;pre&gt;&lt;code class="language-js"&gt;async emptyElement(target) {
+	let children = target.childNodes
+	while (children.length) {
+		let child = children[children.length-1]
+		if (&quot;data&quot; in child) {
+			await this.emptyText(child)
+		} else {
+			await this.emptyElement(child)
+		}
+		child.remove()
+	}
+}
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;Other than this reversal, both methods look very similar to their typing counterparts; they recursively traverse the DOM subtree and act on each node.&lt;/p&gt;
+&lt;h2&gt;Events&lt;/h2&gt;
+&lt;p&gt;With the visible parts of the element being implemented now, what's left is to add a usable JavaScript interface. JavaScript has several mechanisms of handling events, but the ones most widely used nowadays are events and promises, each with their own strengths and weaknesses.&lt;/p&gt;
+&lt;p&gt;Ideally, the API for the TypeWriter might look something like this:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;The Element has a series of Events describing state changes like &quot;finished typing&quot; or &quot;started erasing&quot;&lt;/li&gt;
+&lt;li&gt;Each of these events dispatches an actual DOM Event that can be interacted with as usual.&lt;/li&gt;
+&lt;li&gt;For convenience, for each of these events, the user can get a Promise that resolves the next time the event is emitted.&lt;/li&gt;
+&lt;li&gt;For simpler cases, a user can embed event handling code in the HTML as with other events like &lt;code&gt;click&lt;/code&gt; (via the &lt;code&gt;onclick&lt;/code&gt; attribute) and many others.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;Since all of these features will be using variants of the same event names, that's the best place to start:&lt;/p&gt;
+&lt;pre&gt;&lt;code class="language-js"&gt;static eventNames = [&quot;Typing&quot;, &quot;Typed&quot;, &quot;Erasing&quot;, &quot;Erased&quot;, &quot;Connected&quot;, &quot;Resumed&quot;]
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;Static Initialisation Blocks could be used to make looping over this static array and extending the class more readable; but since those aren't a thing yet, the code looks a bit more esoteric:&lt;/p&gt;
+&lt;pre&gt;&lt;code class="language-js"&gt;static eventNames = [&quot;Typing&quot;, &quot;Typed&quot;, &quot;Erasing&quot;, &quot;Erased&quot;, &quot;Connected&quot;, &quot;Resumed&quot;].map(name =&gt; {
+	// do stuff with &quot;name&quot;
+	return name
+})
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;It's worth pointing out that this creates a new array containing the same elements as the first one, which is wasteful. Since this happens only once in a class definition, and the array isn't long, it won't effectively have any performance impact.&lt;/p&gt;
+&lt;p&gt;Inside this loop, two things will happen:&lt;/p&gt;
+&lt;h3&gt;Event Promises&lt;/h3&gt;
+&lt;p&gt;For each of the known events, the class should have an attribute that returns a promise. Given the event name, this can be implemented quite easily with a bit of metaprogramming magic:&lt;/p&gt;
+&lt;pre&gt;&lt;code class="language-js"&gt;Object.defineProperty(
+	TypeWriter.prototype, name.toLowerCase(),
+	{get() { return new Promise(resolve =&gt;this.addEventListener(
+		name.toLowerCase(),
+		(event) =&gt; resolve(event.detail), {once: true})
+	)}}
+)
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;Simply define a new property on the classes prototype with no setter and a getter that returns a new promise. It becomes a bit hard to read because the event-listener is added in the callback to the Promise constructor, but there's not really much magic going on other than the property definition.&lt;/p&gt;
+&lt;h3&gt;HTML Attributes&lt;/h3&gt;
+&lt;p&gt;This feature has two parts, only the first of which happens inside the event-name loop:&lt;/p&gt;
+&lt;h4&gt;Getting a Function&lt;/h4&gt;
+&lt;pre&gt;&lt;code class="language-js"&gt;Object.defineProperty(
+	TypeWriter.prototype,
+	`on${name}`,
+	{ get() {
+		return Function(this.getAttribute(`on${name}`))
+	}}
+)
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;Once again, a new property is defined on the class, but this time there's another bit of meta-programming going on: the getter for the property accesses one of the element's attributes and turns the string into a function.&lt;/p&gt;
+&lt;p&gt;If, for example, a type-writer tag looks like this:&lt;/p&gt;
+&lt;pre&gt;&lt;code class="language-html"&gt;&lt;type-writer onTyped=&quot;console.log(event, this)&quot;&gt;&lt;/type-writer&gt;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;then accessing the &lt;code&gt;onTyped&lt;/code&gt; property on the object would return a function that's equivalent to the following:&lt;/p&gt;
+&lt;pre&gt;&lt;code class="language-js"&gt;function() {
+	console.log(event, this)
+}
+&lt;/code&gt;&lt;/pre&gt;
+&lt;h4&gt;Calling the Handler&lt;/h4&gt;
+&lt;p&gt;The second part is to call this html-defined event handler, which can easily be done by adding an event listener in the object's constructor:&lt;/p&gt;
+&lt;pre&gt;&lt;code class="language-js"&gt;constructor() {
+	super()
+	TypeWriter.eventNames.forEach(name =&gt; {
+		this.addEventListener(name.toLowerCase(), event =&gt; this[`on${name}`](event))
+	})
+}
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;It simply loops over all the event names and adds a listener that makes use of the property to get a function and calls it. The &lt;code&gt;event&lt;/code&gt; parameter passed to the event callback is just there as a hint that this is an event handler: it doesn't actually get uesd and can be turned into &lt;code&gt;_event&lt;/code&gt; according to taste.&lt;/p&gt;
+&lt;h3&gt;Emitting Events&lt;/h3&gt;
+&lt;p&gt;Now the last part is to actually emit some events. For this, I used a simple helper method to reduce boilerplate:&lt;/p&gt;
+&lt;pre&gt;&lt;code class="language-js"&gt;emit(description, detail=undefined) {
+	this.dispatchEvent(new CustomEvent(description.toLowerCase(), {detail}))
+}
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;There's not much to say about this; it's a very straight-forward helper method that can be called, for example, as &lt;code&gt;this.emit(&quot;typing&quot;, content)&lt;/code&gt; right before the call to &lt;code&gt;typeElement&lt;/code&gt; to signal that the type-writer is about to start typing some text.&lt;/p&gt;
+&lt;hr /&gt;
+&lt;h2&gt;Conclusion&lt;/h2&gt;
+&lt;p&gt;So that's about it. There is, of course, a bunch more code dealing with the more boring technicalities, like skipping &lt;code&gt;&lt;style&gt;&lt;/code&gt; tags when typing (as they are invisible anyway, and would appear as a random pause to the user if they were typed out), getters for delay-properties like &lt;code&gt;wait&lt;/code&gt;, the time in seconds to wait after typing an element before starting to delete it, etc.&lt;/p&gt;
+&lt;p&gt;I hope this article was of some use, specially in illustrating how meta-programming can be used to shorten repetitive code like the adding of event-handlers, which would otherwise have been a long list of &lt;code&gt;get onTyped() {...}&lt;/code&gt; and &lt;code&gt;addEventListener(&quot;typed&quot;, ...)&lt;/code&gt; lines in the class definition, as well as how a set of recursive functions can be used to very easily traverse a DOM subtree.&lt;/p&gt;
+&lt;p&gt;I am aware that this example doesn't really target only one skill-level, as something like recursively traversing a tree is a lot more &quot;basic&quot; than dynamic property definitions and other meta-programming, but I hope that everyone can find at least one or two things they find helpful.&lt;/p&gt;
+&lt;p&gt;And last but not least, &lt;a href="https://github.com/DarkWiiPlayer/components/blob/master/TypeWriter.js"&gt;here's the actual code&lt;/a&gt;, but keep in mind that I changed and ommitted a few things to make the code easier to follow in the article.&lt;/p&gt;
+</content><link>https://blog.but.gay/2021/09/11/type-writer_component_magic_and_asynchronicity.html</link><guid>https://blog.but.gay/2021/09/11/type-writer_component_magic_and_asynchronicity.html</guid><pubDate>11 Sep 2021</pubDate></item><item><title>Tabs are objectively better than spaces, and here's why</title><description>Here's why I think tabs are objectively better than spaces</description><content type="html">&lt;h2&gt;The Debate&lt;/h2&gt;
+&lt;p&gt;This is probably one of the longest ongoing bikeshedding debates in the programming community: Should we indent our code with &lt;strong&gt;Tabs&lt;/strong&gt; or with &lt;strong&gt;Spaces&lt;/strong&gt;?&lt;/p&gt;
+&lt;p&gt;In this post, I will do my best to explain why &lt;strong&gt;tabs&lt;/strong&gt; are the right choice, not only in my personal opinion, but objectively.&lt;/p&gt;
+&lt;h2&gt;Indentation&lt;/h2&gt;
+&lt;p&gt;First of all, I want to define the scope of my argumentation: I am referring to &lt;strong&gt;indentation&lt;/strong&gt;, not &lt;strong&gt;alignment&lt;/strong&gt;.&lt;/p&gt;
+&lt;p&gt;The former depends on semantics, the latter on word lengths. For obvious reasons, using tabs for alignment is not possible; whether alignment should be a thing at all (hint: it shouldn't) or how it should be achieved is a different debate and irrelevant for this post.&lt;/p&gt;
+&lt;h2&gt;Semantics&lt;/h2&gt;
+&lt;p&gt;The most puritan argument for tabs is probably the semantic information they add to the code. I have never seen a real-world example where this matters, but as programmers we often like to obsess over using the right &quot;thing&quot;, be it a HTML element or an ASCII character.&lt;/p&gt;
+&lt;h2&gt;Consistency&lt;/h2&gt;
+&lt;p&gt;The main argument I've heard defending spaces is that code looks &quot;consistent&quot; everywhere. Whether you post your code on Stack-Overflow, GitHub Gists, or on your blog; it will always be indented by the same width.&lt;/p&gt;
+&lt;p&gt;Code is not visual art. The indentation width doesn't alter the codes meaning in any way and, unlike with alignment, changing it doesn't break the visual layout of the code.&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;There is no reason whatsoever why someone else reading my code should experience it with the same indentation width that I wrote it in.&lt;/strong&gt;&lt;/p&gt;
+&lt;h2&gt;Customizability&lt;/h2&gt;
+&lt;p&gt;I personally prefer a tab-width of three spaces. Two is just barely too short to follow through deeper nested blocks of code. Four is one more space-width than I need.&lt;/p&gt;
+&lt;p&gt;So the question is: Why would &lt;em&gt;you&lt;/em&gt; have to read my code with such an awkward tab width, just because to my uncommon taste &lt;!-- unintentional skyrim reference --&gt; that seems like the right value?&lt;/p&gt;
+&lt;p&gt;The answer is, of course, you shouldn't. You should be able to read &lt;em&gt;my&lt;/em&gt; code the way &lt;em&gt;you&lt;/em&gt; prefer to read it.&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;Everyone should be able to read code with their own preferred settings.&lt;/strong&gt;&lt;/p&gt;
+&lt;h2&gt;Accessibility&lt;/h2&gt;
+&lt;p&gt;So far I've looked at customizability as a convenience feature. I &lt;em&gt;like&lt;/em&gt; 3-space indentation more, so I &lt;em&gt;want&lt;/em&gt; to read code that way.&lt;/p&gt;
+&lt;p&gt;But for some people it goes beyond just preference.&lt;/p&gt;
+&lt;p&gt;I've seen posts and comments of quite a few developers with poor eyesight. For some, 2 spaces is just not enough indentation, making it unnecessarily hard to read code, others might need to use very large font sizes, and prefer shorter indentations to save screen space.&lt;/p&gt;
+&lt;h2&gt;Consistency (again, but differently)&lt;/h2&gt;
+&lt;p&gt;This is by far the most ridiculous reason, or group of reasons people make to argue for spaces:&lt;/p&gt;
+&lt;p&gt;Projects indented with tabs—so the claim—cause additional work when people contribute code that is indented with spaces, requiring additional moderator intervention.&lt;/p&gt;
+&lt;p&gt;Needless to say, this argument works exactly the same both ways, and if anything, says more about the typical space-user than the typical tab-user.&lt;/p&gt;
+&lt;p&gt;Regardless of preference, in the age of linting tools and CI pipelines, this is just not an issue any more. We can automate the process of checking indentation, or even have it fixed automatically.&lt;/p&gt;
+&lt;h2&gt;Conclusion&lt;/h2&gt;
+&lt;p&gt;There is not a single good reason to prefer spaces over tabs. The whole space-indentation mythology is nothing but ridiculous non sequiturs and false claims.&lt;/p&gt;
+</content><link>https://blog.but.gay/2021/02/15/tabs_are_objectively_better_than_spaces_and_heres_why.html</link><guid>https://blog.but.gay/2021/02/15/tabs_are_objectively_better_than_spaces_and_heres_why.html</guid><pubDate>15 Feb 2021</pubDate></item><item><title>A rant on change, and the good old times.</title><description>A long and poorly structured rant about a series of harmful phenomena I've observed in the world of programming.</description><content type="html">&lt;h2&gt;Preamble&lt;/h2&gt;
+&lt;p&gt;Over the last decade or so, I've had a peek into quite a few developer communities. I do most of my private programming in Lua, and interact with that community almost daily. At work I use Ruby, and often get a good glimpse of that community as well. Through Hacker News, Reddit and a bunch of other sites I get a good impression of many different &quot;general&quot; programming communities. I am only human, so my opinions will of course be biased, but for what it's worth, I do believe that I have at least some degree of objective perspective on this topic.&lt;/p&gt;
+&lt;h2&gt;The Problem&lt;/h2&gt;
+&lt;p&gt;Lately, I've noticed a bit of a trend within the world of software development. Put bluntly, it seems to me like the field of programming is slowly but surely drifting down the hillside, spearheaded but not exclusively caused by the web community in particular.&lt;/p&gt;
+&lt;h2&gt;The Symptomatology&lt;/h2&gt;
+&lt;p&gt;What do I mean by this though? Well, starting with the a parallel, but mostly positive process: Programming is becoming more and more inclusive and easy to get into. Elitism is slowly becoming more of a meme than an honest feeling of superiority, and more and more people are picking up programming or closely related skills.&lt;/p&gt;
+&lt;p&gt;However, in the process of wiping away elitism and gatekeeping in the software world, it seems to me, that in our excitement we are also throwing out valuable barriers that keep our world stable and nice&lt;/p&gt;
+&lt;p&gt;One of the big changes I have noticed is a general shift from &quot;hobby that you can even get paid for&quot; to &quot;easy way to land a comfortable job&quot;. Discussions about fancy things you can do with software for the sake of experimentation are being replaced with top ten interview questions for whatever the hottest new technology is at a given moment. Enthusiasm for technologies despite its economic viability is being replaced with amusement at getting something to work as quickly (read: wasting as little paid hours) as possible.&lt;/p&gt;
+&lt;p&gt;The result is that these days, there's a much bigger emphasis on learning products over theories. The &quot;brand&quot; is slowly sneaking into the world of programming, and while specific technologies have always been something you'd learn, it used to be more about languages than single platforms. Maybe this started with Java and the JVM platform, but I'm not old enough to judge that.&lt;/p&gt;
+&lt;p&gt;At the same time, some of the blame might fall on the internet. In the &quot;good old days&quot;, when &quot;everything was better™&quot;, the lack of a centralised knowledge-base meant people had to learn their IT skills though manuals and text-books. One could consult a manual for certain questions, but given the limited space, this would only lay out the components and tools you'd need to fix a problem. These days, one can consult the internet with a very specific question and is likely to get a solution for that exact problem spoonfed by the collective knowledge of the entire programming community.&lt;/p&gt;
+&lt;p&gt;Is this bad? No. But it leads people to rely on it, and &lt;em&gt;that&lt;/em&gt; certainly &lt;em&gt;is&lt;/em&gt; bad. One of the reasons I have stopped visiting the ProgrammerHumor subreddit despite enjoying most of the bad and repetitive jokes there, is that a certain category of self-deprecating humor has gotten so overused, that it's impossible to scroll though it for 5 minutes without seeing at least one post where the punchline falls along the lines of &quot;all programmers do is google&quot; or &quot;if stackoverflow is offline, all development just stops worldwide&quot;.&lt;/p&gt;
+&lt;p&gt;By itself, each one of those jokes would be funny. Programming &lt;em&gt;does&lt;/em&gt; sometimes feel like most of what one does is googling, specially when just learning a new technology. But the obsession with this narrative, over time, has started to make me wonder if this is what some people actually believe, and, by constantly repeating and repeating and repeating this same punchline, if newcomers and outsiders will sooner or later get the impression that this is the unironic reality of programming.&lt;/p&gt;
+&lt;p&gt;Why does this matter? Consider the public image of programming. Currently, most people, when I tell them I do programming, react with at least some degree of respect. &quot;He's a programmer, he must be smart&quot; is what some people might think, not unlike someone calling themself a &quot;scientist&quot; or a &quot;mathematician&quot;. Programming is considered an intellectual discipline. This directly translates into how much worth is associated with the job: if you have to be smart to do something, you will get paid well, because you're &quot;in demand&quot;. What, did you believe we're getting paid more than a janitor, who spends most of their day doing physically demanding work, because our job is so much harder? You probably know that that's not how it is.&lt;/p&gt;
+&lt;p&gt;So from that perspective, constantly reiterating the idea that programmers are just code-monkeys that only google things is, to put it bluntly, strategically stupid.&lt;/p&gt;
+&lt;h2&gt;The Mythology&lt;/h2&gt;
+&lt;p&gt;The idea that programmers just copy together all of their code is far from the only harmful idea out there though. Parallel to it, a much more harmful myth is that &quot;everyone can code [on the same level]&quot;. Now, just as with drawing, music and many others, I do believe that everyone, without exceptions, is capable of learning the basics of programming.&lt;/p&gt;
+&lt;p&gt;However, it is simply a fact that not everyone has the talent to program something like the linux kernel. And this is probably one of the hardest truths to properly internalize: we don't want to be elitists, we want everybody to have a chance at joining our community. We want others to discover and enjoy our hobby, just as we did. And that's fine. I won't stop telling people that they can &lt;em&gt;learn to code&lt;/em&gt;. But I don't want to keep spreading the lie that everybody can become just as good as everyone else. Some people don't have what it takes, and some people have talent that I just won't be able to reach myself.&lt;/p&gt;
+&lt;p&gt;So how does that persistent myth do any real harm? In the same way the Google and StackOverflow jokes do: by devaluing our skills and our work. If everyone can do a thing, then there's nothing valuable about it. If anybody can go to a boot camp and become a super-duper good programmer within a year or two of job experience, then there's nothing worth respecting about anything one can achieve.&lt;/p&gt;
+&lt;p&gt;On the other side, it sometimes seems that employers still haven't given up on the mythical plug-n-play developer that can be employed today and start being 100% effective tomorrow. It used to be that OOP promised developers who could be interchanged without any effort, and instead of just disappearing, this supersticion seems to just have shifted to the ridiculous belief that a developer can specialise in a specific tech stack to the degree where they can just be sat down before a project and they'll instantly know how to make the product better.&lt;/p&gt;
+&lt;h2&gt;The End Game&lt;/h2&gt;
+&lt;p&gt;Is all of this coincidence? Well, it probably is. I don't believe there's any mastermind about us programmers shooting our own leg and devaluing our own skills. However, there is someone who profits from it, and certainly has good enough reasons to help the process along occasionally.&lt;/p&gt;
+&lt;p&gt;I am, of course, talking about employers. There used to be a myth of software systems that don't need programming. Where anybody could just drag a few boxes around and the result would be a program that does exactly what it needs to, no matter how complex the task. Unfortunately for employers, and very fortunately for us employed and employment-seeking programmers, this never happened, and we've somewhat accepted that it just won't happen anytime soon.&lt;/p&gt;
+&lt;p&gt;What other hope is there to not have to pay well-trained and experienced professionals for their expensive time? The simplest answer is: make their time less expensive.&lt;/p&gt;
+&lt;p&gt;While observing the community discuss employment practices, specially in the USA, I'm routinely baffled at how comically and artificially imbalanced this whole process is.&lt;/p&gt;
+&lt;p&gt;More than enough people have written lengthy articles about how pointless and arbitrary the distinction between &quot;junior&quot; and &quot;senior&quot; developers often is, and have done a much better job than I could, considering this is not all that common in my country. I also often read about interview processes that just seem utterly lacking in any sort of respect for the applicant and their time.&lt;/p&gt;
+&lt;p&gt;The strategy seems obvious: gasslighting us all into believing we're of very low, if any, worth to the employers who so generously offer to grant us shelter from our own lack of practical skills. We're not corporate simps, we're just grateful that we don't have to sleep under a bridge. I am exaggerating, of course, but it does seem very clear that this is the general direction things are going. It's not a problem specific to our field either, but it might be more pronounced because of the rapid influx of newcomers, and the arcane image to the outsider.&lt;/p&gt;
+&lt;p&gt;While everybody can estimate how much skill and effort goes into, say, building furniture, it is very hard if not impossible to the uninitiated to get a feeling for how difficult it is to build a software product. It seems almost like black magic to the outsider, and this is another thing that people often joke about (sadly, the punchline is often that ultimately, we're not doing anything at all difficult).&lt;/p&gt;
+&lt;h2&gt;The Remedy&lt;/h2&gt;
+&lt;p&gt;It is hard to say what could be done to push programming back up the hill. There seems to be a strong culture of self-deprecation (probably adopted from broader nerd-culture), and a tendency to unironically under-value ones own skills in this community. The amount of posts I find about impostor syndrome every week on its own already indicates that we have a serious problem that needs to be addressed.&lt;/p&gt;
+&lt;p&gt;At the same time, our attempts to be kind to everyone might be pushing us further into the corner. Maybe we should develop a bit more of a &quot;git gud&quot; (&lt;code&gt;git: 'gud' is not a git command. See 'git --help'&lt;/code&gt;) attitude as the gaming world (sans the insults and trash-talking, if possible), that puts more emphasis on showing someone how to improve than to defuse their insecurities and feelings of insufficiency.&lt;/p&gt;
+&lt;p&gt;As for the focus on finding employment, I really think that needs to be toned down. Yes, it is easy to be excited about potentially turning your hobby into your job, or switch careers to something you found to be much more enjoyable. For some, programming might even be a unique chance for a better life. But for many of us it is also a hobby, and for me personally, it is as much an art as is music or drawing. I don't care about top 10 javascript interview questions and would much rather talk about all the totally useless and impractical but technologically cool and creative things you guys have built.&lt;/p&gt;
+&lt;p&gt;And please, don't sell yourselves under value. Programming is hard. Everyone can learn it, but few can master it. We're not just code-monkeys copying from google. And if you're learning: Try having fun and don't worry too much about maximising your employability.&lt;/p&gt;
+&lt;h2&gt;In Conclusion&lt;/h2&gt;
+&lt;p&gt;It's not like I think the world will end. Programming won't stop being my hobby, nor do I fear I some day won't find a job (at least not before someone develops an AI that does all the programming for us and understands human language). I want the world of programming to stay this quirky place, where people build cool stuff, share what they've built and discuss it with others. Ultimately I hope we can all have fun programming 🧡&lt;/p&gt;
+</content><link>https://blog.but.gay/2020/11/25/a_rant_on_change_and_the_good_old_times.html</link><guid>https://blog.but.gay/2020/11/25/a_rant_on_change_and_the_good_old_times.html</guid><pubDate>25 Nov 2020</pubDate></item><item><title>Why I prefer Lua to Ruby</title><description>A short post describing the main reasons why after years of using both languages, I still prefer Lua to Ruby for most general situations.</description><content type="html">&lt;p&gt;So Lua and Ruby are two rather similar languages in many aspects. There's a lot of articles explaining what makes them so similar and many of the more superficial differences.&lt;/p&gt;
+&lt;p&gt;Today I'd like to point out some reasons that have shaped my opinion on the two languages.&lt;/p&gt;
+&lt;p&gt;I will risk sounding like a hater, but I'd like to point out that I don't particularly dislike Ruby. There's many positive things about it, but since I do prefer Lua, I just chose to point out some of its problems today.&lt;/p&gt;
+&lt;h2&gt;Speed&lt;/h2&gt;
+&lt;p&gt;It'd be easy to just say &quot;Lua fast, Lua good&quot; and be done with it. In reality though, things aren't always that easy.&lt;/p&gt;
+&lt;h3&gt;File Size&lt;/h3&gt;
+&lt;p&gt;The thing about Lua is, it's very small. Not only does this mean that it fits almost everywhere, but also that it loads very fast&lt;/p&gt;
+&lt;pre&gt;&lt;code class="language-bash"&gt;&gt; time ruby -e 'puts &quot;hello&quot;'
+hello
+
+real	0m0.059s
+user	0m0.054s
+sys 	0m0.005s
+
+&gt; time lua -e 'print &quot;hello&quot;'
+hello
+
+real	0m0.003s
+user	0m0.003s
+sys 	0m0.001s
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;This only makes a difference when you're calling the executable many times in a row, but the difference does add up over time.&lt;/p&gt;
+&lt;h3&gt;Functions vs. Methods&lt;/h3&gt;
+&lt;p&gt;The next thing to consider is that, in Lua, functions are stored in variables, and are therefore easy to look up.&lt;/p&gt;
+&lt;p&gt;Ruby, on the other hand, has to look up methods for everything. For short methods (let's say, adding two numbers) this can mean a significant overhead.&lt;/p&gt;
+&lt;pre&gt;&lt;code class="language-bash"&gt;&gt; ruby -e 'puts self.class.ancestors'
+Object
+Kernel
+BasicObject
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;Even the main object every ruby script runs in inherits from 3 ancestors.&lt;/p&gt;
+&lt;p&gt;It should be noted that Lua isn't immune to this problem. When writing object-oriented code, this also ends up happening. The difference is that in Lua the programmer must do this explicitly, while in Ruby it happens all the time.&lt;/p&gt;
+&lt;h3&gt;Strings / Symbols&lt;/h3&gt;
+&lt;p&gt;~~This may surprise some people, but Lua actually has a huge disadvantage to Ruby in terms of speed: It has no Strings in the way Ruby has them. All strings in Lua are automatically interned. Ruby has interned strings as well; it calls them &lt;em&gt;Symbols&lt;/em&gt;.~~&lt;/p&gt;
+&lt;p&gt;~~This has its upsides and, overall, was probably a smart decision, but it also means reading in a long text file takes much longer in Lua. Imagine calling &lt;code&gt;to_sym&lt;/code&gt; on every line in Ruby.~~&lt;/p&gt;
+&lt;p&gt;&lt;code&gt;&lt;edit&gt;&lt;/code&gt;&lt;/p&gt;
+&lt;p&gt;Since writing this post, I have double-checked this and discovered that I apparently misunderstood this or just remembered it incorrectly: Lua &lt;em&gt;does&lt;/em&gt; intern all &lt;strong&gt;short&lt;/strong&gt; strings by default, however, above a certain length, this doesn't happen anymore. Strings that are too long for interning don't get hashed immediately, but they do get hashed once it becomes necessary (for example when comparing them to another string or indexing a table) and will from then on use just use that hash.&lt;/p&gt;
+&lt;p&gt;This pretty much means that, in most cases, Lua wins over Ruby even when working with long (but immutable) strings.&lt;/p&gt;
+&lt;p&gt;However, the downside that Lua strings are immutable remains, and modifying a string means creating a new, modified copy of the string.&lt;/p&gt;
+&lt;p&gt;&lt;code&gt;&lt;/edit&gt;&lt;/code&gt;&lt;/p&gt;
+&lt;h3&gt;Vararg functions&lt;/h3&gt;
+&lt;p&gt;If I was asked which of the two languages had the powerful implementation of variadic functions, I'd 100% say Ruby. You can mix and match many kinds of syntactic constructs that capture additional arguments into both arrays and hashes.&lt;/p&gt;
+&lt;p&gt;But, with great strength comes... not so great performance.
+Let's consider the following piece of code:&lt;/p&gt;
+&lt;pre&gt;&lt;code class="language-ruby"&gt;def foo(bar, *rest)
+    do_something(bar)
+    do_something(*rest)
+end
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;Every time the foo method is called, ruby needs to instantiate a new array &lt;code&gt;rest&lt;/code&gt; and collect the excess arguments into it. This ends up happening a lot and makes variadic methods very unsuited for code that needs to perform well.&lt;/p&gt;
+&lt;p&gt;Consider the equivalent code in Lua:&lt;/p&gt;
+&lt;pre&gt;&lt;code class="language-lua"&gt;function foo(bar, ...)
+    do_something(bar)
+    do_something(...)
+end
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;Here, there's no array involved. The function can just leave bar on the stack, call &lt;code&gt;do_something&lt;/code&gt; telling it it has 1 argument, then pop bar from the stack and call &lt;code&gt;do_something&lt;/code&gt; again, telling it how many items are left on the stack.&lt;/p&gt;
+&lt;p&gt;This means writing functions like this is way more viable even when your code needs to run as fast as possible.&lt;/p&gt;
+&lt;h3&gt;Mentality&lt;/h3&gt;
+&lt;p&gt;One difference that probably makes a way larger difference than most people would assume is the difference in mentality between the two communities.&lt;/p&gt;
+&lt;p&gt;When asked why Ruby is so great, the general response from its community will be something along the lines of &quot;Because it's fun to write!&quot;. Many Ruby examples out there seem to throw performance out the window before even starting. This isn't necessarily a bad thing, but it ultimately leads to people writing libraries that run way slower than they could.&lt;/p&gt;
+&lt;p&gt;My experience with the Lua community has been vastly different. A simple google search brings up way more relevant and detailed information on how to improve performance in Lua than in Ruby, even though the latter has a much larger community that also seems to write way more about it.&lt;/p&gt;
+&lt;h3&gt;LuaJIT&lt;/h3&gt;
+&lt;p&gt;Lua is already very fast on its own. LuaJIT though, that's a completely different level. There have been examples where JITed Lua code can even run faster than equivalent C code, because the compiler sometimes has more awareness of the code it's optimizing (After all, it keeps track of the code as it's being executed)&lt;/p&gt;
+&lt;p&gt;Ruby has made a huge step in the right direction with its own JIT Compiler, but that's still nowhere near the performance improvements of LuaJIT when compared to PUC Lua, the &quot;reference&quot; Lua implementation.&lt;/p&gt;
+&lt;h2&gt;Simplicity&lt;/h2&gt;
+&lt;p&gt;Leaving performance aside now, there's another reason why I consider simplicity a very positive feature of Lua: It's not only easy to learn, but also easy to master.&lt;/p&gt;
+&lt;h3&gt;Modularity&lt;/h3&gt;
+&lt;p&gt;This is probably one of the things I hate the most about Ruby. No matter how hard you try, you will never get rid of global state. At the very least you will have some modules and classes polluting the global environment, and there is no way to load a library into a contained space.&lt;/p&gt;
+&lt;p&gt;This means, for example, that it's not possible to load two different versions of one library without having to go through its source code and renaming things everywhere.&lt;/p&gt;
+&lt;pre&gt;&lt;code class="language-ruby"&gt;require 'some_class'
+
+foo = SomeClass.new # Where did this come from?!
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;In Lua, on the other hand, you can just rename the file and load it into another local. How things are called internally doesn't matter to the host program.&lt;/p&gt;
+&lt;pre&gt;&lt;code class="language-lua"&gt;local someclass = require 'someclass'
+
+local foo = someclass.new()
+&lt;/code&gt;&lt;/pre&gt;
+&lt;h3&gt;Side effects&lt;/h3&gt;
+&lt;p&gt;Ruby tries to be as comfortable as possible for the developer. I often find myself wishing it didn't&lt;/p&gt;
+&lt;p&gt;Consider the following example:&lt;/p&gt;
+&lt;pre&gt;&lt;code class="language-ruby"&gt;require 'missile_cruiser'
+
+MissileCruiser.new.last_fired
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;What happens there? One would assume, the variable &lt;code&gt;last_fired&lt;/code&gt; will return the last missile that was fired. Since we didn't fire one, it would be reasonable for this to be &lt;code&gt;nil&lt;/code&gt;.&lt;/p&gt;
+&lt;p&gt;But wait, what if it's a method?&lt;/p&gt;
+&lt;p&gt;Maybe it will raise an error because we didn't fire any missile yet?&lt;/p&gt;
+&lt;p&gt;Even worse, maybe some developer thought if we wanted to know about the last missile, we probably wanted to fire one, so the method just fires a missile and returns that one?&lt;/p&gt;
+&lt;p&gt;This kind of thing happens often in Ruby. The lines between what is a value and what is code that gets executed are blurred.&lt;/p&gt;
+&lt;h3&gt;(in)Consistencies&lt;/h3&gt;
+&lt;p&gt;Try the following code in &lt;code&gt;irb&lt;/code&gt;:&lt;/p&gt;
+&lt;pre&gt;&lt;code class="language-ruby"&gt;puts 1/0
+puts 0/0
+puts 1.0/0
+puts 0.0/0
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;Things like that make a language (and, by extension, programs written in it) harder to understand at first glance, specially to newcomers. No language will ever be 100% consistent, but these inconsistencies should still be reduced whenever possible.&lt;/p&gt;
+</content><link>https://blog.but.gay/2019/04/01/why_i_prefer_lua_to_ruby.html</link><guid>https://blog.but.gay/2019/04/01/why_i_prefer_lua_to_ruby.html</guid><pubDate>01 Apr 2019</pubDate></item></channel></rss>
