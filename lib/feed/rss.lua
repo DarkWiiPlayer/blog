@@ -26,6 +26,10 @@ return function(posts)
 				return xml.item {
 					xml.title(post.head.title);
 					xml.description(post.head.description);
+					xml.content {
+						type="html";
+						post.body;
+					};
 					xml.link(link);
 					xml.guid(link);
 					xml.pubDate(os.date("%d %b %Y", post.head.timestamp));
