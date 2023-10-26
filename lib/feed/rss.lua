@@ -14,7 +14,6 @@ end
 return function(posts)
 	return tostring(xml.rss{
 		version="2.0";
-		["xmlns:atom"]="http://www.w3.org/2005/Atom";
 		xml.channel {
 			xml.title(config.title);
 			xml.link "https://blog.but.gay/";
@@ -26,10 +25,6 @@ return function(posts)
 				return xml.item {
 					xml.title(post.head.title);
 					xml.description(post.head.description);
-					xml.content {
-						type="html";
-						post.body;
-					};
 					xml.link(link);
 					xml.guid(link);
 					xml.pubDate(os.date("%d %b %Y", post.head.timestamp));
