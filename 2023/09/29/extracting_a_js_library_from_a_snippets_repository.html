@@ -1,0 +1,124 @@
+<html lang="english"><head><link type="application/rss+xml" rel="alternate" title="RSS 2.0 feed" href="/feeds/all.rss.xml"><link type="application/atom+xml" rel="alternate" title="Atom feed" href="/feeds/all.atom.xml"><meta content="same-origin" name="view-transition"><meta charset="UTF-8"><meta content="width=device-width" name="viewport"><link rel="stylesheet" href="https://darkwiiplayer.github.io/css/all.css"><link rel="stylesheet" href="https://darkwiiplayer.github.io/css/schemes/talia.css"><link rel="stylesheet" href="/css/site.css"><style>	@import url('https://fonts.googleapis.com/css2?family=Raleway&display=swap');
+	@import url('https://fonts.googleapis.com/css2?family=Open+Sans&display=swap');
+	@import url('https://fonts.googleapis.com/css2?family=Fira+Code&display=swap');
+
+	:root { container: style; }
+	:is(h1, h2, h3, h4, h5, h6) { font-family: "Raleway", sans-serif; }
+	:is(code, kbd, var, samp) { font-family: "Fira Code", monospace; }
+	.badge { font-family: "Open Sans", sans-serif }
+</style><title>Extracting a JS library from a snippets repository</title><meta content="Talia" name="author"><meta content="2023-09-29" property="article:published_time"><meta content="https://tech.lgbt/@darkwiiplayer" property="article:author"><meta content="Extracting a JS library from a snippets repository" property="og:title"><meta content="Talia's Blog" property="og:site_name"><meta content="A short explanation of how I extracted a single JavaScript file into its own repository from a bigger collection of snippets and mini-libraries, keeping the file's commit history but scrubbing irrelevant commits and other files from the repository." property="og:description"><meta content="article" property="og:type"><meta content="Talia" property="og:article:author"><meta content="git" property="og:article:tag"><meta content="scripting" property="og:article:tag"><meta content="ad-hoc" property="og:article:tag"></head><body><header class="sticky" style="view-transition-name: header"><h1>Talia's Blog</h1><nav class="right bar"><ul><li><a href="/">Home</a></li></ul></nav></header><main><article><h1 style="view-transition-name: extracting_a_js_library_from_a_snippets_repository">Extracting a JS library from a snippets repository</h1><div class="summary" tabindex="0">A short explanation of how I extracted a single JavaScript file into its own repository from a bigger collection of snippets and mini-libraries, keeping the file's commit history but scrubbing irrelevant commits and other files from the repository.</div><vertical-spacer></vertical-spacer><flex-row style="justify-content: flex-start" gap=".4"><post-tag><a style="--color: rgb(165, 89, 89)" tabindex="0" href="/?tag=git">git</a></post-tag><post-tag><a style="--color: rgb(89, 137, 165)" tabindex="0" href="/?tag=scripting">scripting</a></post-tag><post-tag><a style="--color: rgb(98, 165, 89)" tabindex="0" href="/?tag=ad-hoc">ad-hoc</a></post-tag></flex-row><vertical-spacer></vertical-spacer><nav class="breadcrumbs"><ul><li><a tabindex="0" href="/blog/">Blog</a></li><li><a tabindex="0" href="/2023">2023</a></li><li><a tabindex="0" href="/2023/09">09</a></li><li><a tabindex="0" href="/2023/09/29">29</a></li><li class="active">Extracting a JS library from a snippets repository</li></ul></nav><vertical-spacer></vertical-spacer><aside class="box"><b>Hey there!</b><p>		This blog doesn't use any tracking. When you open this page, I don't see
+		a number going up anywhere, so if you like this post, please consider
+		letting me know on <a href="https://tech.lgbt/@darkwiiplayer">the fediverse</a>!
+		This is also the best way of giving any other feedback on my blog posts.
+	</p><p><i>Thank you.</i></p></aside><h2>Context</h2>
+<p>A couple of years ago, I created a repository for all those JavaScript snippets and files that were were too small to turn into their own project, and could just be copy-pasted into wherever they were needed, or imported via services like jsdelivr directly through github.</p>
+<p>As some of these files grew in size and scope, this approach started to be less and less convenient, and eventually it became clear that to continue to use and maintain these bigger libraries, it would be better to just migrate them into their own repository.</p>
+<p>In principle, it would have been <em>good enough</em> to simply copy the files into a new repo, check them in with an &quot;Initial Commit 🎉&quot; and refer to the collection repository where their original development history resides.</p>
+<p>But that would be boring, and I like to make things look neat, so I decided I wanted to migrate the commit history of these individual files into their new repositories.</p>
+<h2>How did I do it?</h2>
+<p>The first file on my migration list is <code>skooma.js</code>, a JS port of a Lua-library of the same name that I had gotten so used to that I wanted to use it in my front-end code as well.</p>
+<p>This file is a good case-study because it started out as <code>render.js</code>, but got renamed to <code>skooma.js</code> after only a few commits. This isn't too much of a problem, it just means that I also had to keep all commits including the original <code>render.js</code> file, as well as <code>skooma.js</code>, and its corresponding <code>skooma.md</code> file explaining what it does.</p>
+<p>As a starting point, it was clear that the best tool for the job would be <code>git rebase</code> in some way; <em>maybe</em> there are other git commands to get this done with an even higher degree of automation, but for a one-off task all I needed was to automate ca. 90% of the work so I wouldn't have to cherry-pick commit by commit.</p>
+<p>Starting by just running <code>git rebase --root --interactive</code> and having a look at the output and the available commands (I have used interactive rebase many times, but seeing the output of the to-do file before me just helped thinking about how to best handle it), I wasn't really sure if it'd be possible to really automate the entire process, so I went for the simpler and only partly automated option:</p>
+<ul>
+<li>Start an interactive rebase</li>
+<li>Run a script over the to-do file</li>
+<li>Run the rebase and intervene manually where needed</li>
+</ul>
+<h2>The script</h2>
+<p>This is the part where the magic happens. When you call <code>git rebase --interactive</code>, you get an editor window listing everything the rebase will do, a &quot;program&quot; in the classic sense, which you can edit to make git do different things. The syntax looks something like this:</p>
+<pre><code>pick 2c5a6d3 Initial commit 🎊
+pick 1e6c0de Add template module to more easily write templates
+pick bbbb234 Add Better HTML element class for custom elements
+pick c8fd5b1 Refactor scripts into ES6 modules
+pick 79af2b7 Add skooma-like functional DOM rendering helper
+pick da2f082 Improve HTML render helper
+pick 24ee30f Add special case for templates to render script
+pick 7a61b96 Rename render to skooma.js
+pick 7e72b33 Remove uppercase node special case from skooma.js
+pick f97ae06 Remove setup function from template.js
+...
+</code></pre>
+<p>The first word is the command of what will be done. <code>pick</code> means it just uses the commit as-is. A complete list of commands can be found in a commit that git adds at the bottom of the to-do file.</p>
+<p>The second word is the commit hash, which is needed because you can move lines around in this file to re-order commits (this may of course cause conflicts that will require manual intervention, but git is smart enough to pause the rebase when that happens, give you a rough description of what's confusing it, and tell you what to do and how to continue after fixing it).</p>
+<p>Anything after that is the commit message. This only gets added to make it easier to edit the file interactively, but git itself will ignore these. Nevertheless, it would be nice to preserve these messages after modifying the to-do program to make it easier to check what is ultimately going to happen.</p>
+<p>To build my script, I decided to use Lua, for no other reason than it being the language I use for most scripting I do at home and I didn't want to bother with something exotic. I could <em>probably</em> have done the same with a lot less code in Ruby, but since I mostly use that at work for bigger projects, I'm used to using only the kinds of features that Lua also has, and almost never have any contact with the more Perl-like features that make Ruby good for ad-hoc scripts; so ultimately, so the advantage isn't all that big in the end.</p>
+<p>Before I break this up and explain what everything does, here is the finished script:</p>
+<pre><code class="language-lua">#!/usr/bin/env luajit
+
+local function files(commit)
+   local handle = io.popen(&quot;git diff-tree --no-commit-id --name-only &quot; .. commit)
+   return handle:lines()
+end
+
+local wanted = { &quot;render.js&quot;, &quot;skooma.js&quot;, &quot;skooma.md&quot; }
+for i, file in ipairs(wanted) do
+   wanted[file] = i
+end
+
+for line in io.stdin:lines() do
+   local commit, message = line:match(&quot;pick ([0-9a-f]+) (.*)$&quot;)
+   if commit then
+      local changed = {}
+      for file in files(commit) do
+         table.insert(changed, file)
+         changed[file] = #changed
+      end
+      
+      local want for i, file in ipairs(changed) do
+         if wanted[file] then
+            want = true
+         end
+      end
+      
+      if want then
+         print(string.format(&quot;pick %s %s&quot;, commit, message))
+         for i, file in ipairs(changed) do
+            if not wanted[file] then
+               print(string.format([[exec if [ -f &quot;%s&quot; ]; then git rm %s &amp;&amp; git commit --amend --no-edit; fi]], file, file))
+            end
+         end
+      else
+         print(string.format(&quot;drop %s %s&quot;, commit, message))
+      end
+   end
+end
+</code></pre>
+<p>Ignoring the <code>files</code> function for now, I start by defining a list of files that I want to keep. The for loop is only there to make the table function as a set as well as a list, which is a neat feature of Lua that I won't get into detail here.</p>
+<p>The script loops over all of its input lines (so I can just pipe the whole file through it from vim), and parses out a commit hash and the following commit message, discarding the <code>&quot;pick&quot;</code> at the start of the line.</p>
+<p>When the line matches (which excludes empty lines and comments), it first collects a list of changed files, using the helper function from earlier. This is done using the <code>git diff-tree</code> command (admittedly, I just googled this after spending a minute or two trying to find out how to do this from the git manpages). When given the <code>--no-commit-id</code> and <code>--name-only</code> flags, as well as a commit hash, it essentially just lists all the files that were changed, added, deleted, etc. in that specific commit. Exactly what I needed.</p>
+<p>After collecting the list, I loop over it again and look for each file name in the list of wanted files. If it appears, a flag is set to true, otherwise I can just <code>drop</code> this commit. This could have been merged into the first loop, but I'm not gonna win any prizes for making a script that's gonna run 10 or 20 times in total run a few milliseconds faster.</p>
+<p>When the commit modifies one of the files I want, I add a new <code>pick</code> command for it to keep the commit.</p>
+<p>At this point, there's a bit of a problem: Most commits <em>creating</em> new files will usually not touch any of my relevant files. Skooma is its own thing, and I usually try to keep the git history clean. But I don't bother splitting &quot;housekeeping&quot; commits by file, so things like running a linter over the whole project and fixing all the warnings. This will create commits that 1. modify files I want to keep and 2. modify unwanted files which, at this point, aren't part of the repository anymore, as the commits creating them have been dropped.</p>
+<p>This is the part where git will pause the rebase, show a description of what's wrong, and ask the user to fix it. Luckily for me, and anyone who might want to do something similar, this almost always follows the same pattern: The commit says to modify a file, but the file is no longer known to git. The fix:</p>
+<ul>
+<li>Call <code>git status</code> to see what files are no longer there</li>
+<li>Call <code>git rm</code> on all of the files, or just <code>git rm -r &lt;dir&gt;</code> if they're all in a subdirectory</li>
+<li>Call <code>git rebase --continue</code> to tell git all is fine now</li>
+</ul>
+<p>This leaves me with only one possible problem: If any file was, hypothetically, created in a commit that modifies one of my wanted files, then git would have no problem with that, and I'd end up with an extra file in my repo. So I added a little loop that, after each commit gets picked, loops over all the extra files, and adds an extra command for each of them which deletes them if it still exists. Since git updates the working directory as it applies commits, I only need to check for the actual file, without any git magic to see if it exists in the last applied commit. I'm fairly sure this wasn't the case in my repo, but I just wanted to add that check while I was at it to make the script a bit more robust.</p>
+<p>Here's what the resulting to-do file looks like, after feeding it through the script:</p>
+<pre><code>drop 2c5a6d3 Initial commit 🎊
+drop 1e6c0de Add template module to more easily write templates
+drop bbbb234 Add Better HTML element class for custom elements
+drop c8fd5b1 Refactor scripts into ES6 modules
+pick 79af2b7 Add skooma-like functional DOM rendering helper
+pick da2f082 Improve HTML render helper
+pick 24ee30f Add special case for templates to render script
+pick 7a61b96 Rename render to skooma.js
+pick 7e72b33 Remove uppercase node special case from skooma.js
+drop f97ae06 Remove setup function from template.js
+drop d703ae1 Refactor BetterHTMLElement with more meta-magic ✨
+pick 5f27242 Fix checking for template objects in skooma.js
+pick c16eb29 Extend skooma to support SVG as well as HTML
+pick 6f85103 Fix skooma.js syntax for strict mode
+pick 60af077 Make hyphenation in consistent with browser APIs
+exec if [ -f &quot;BetterHTMLElement.js&quot; ]; then git rm BetterHTMLElement.js &amp;&amp; git commit --amend --no-edit; fi
+drop 137f586 Add option for customized built-in elements
+pick fb6b86b Fix undefined variable in skooma.js
+drop 63a85b7 Fix undeclared variable
+pick 0448cd2 Update skooma.js to handle numbers
+drop be31d1f Add mutation observer to BetterHTMLElement
+...
+</code></pre>
+</article></main><footer class="box"><grid-box class="content-padding" columns="3"><aside id="contact"><h2>Social</h2><p>Got feedback? — Tag me on fedi!<br><a rel="me" href="https://tech.lgbt/@darkwiiplayer">@darkwiiplayer@tech.lgbt</a></p></aside><aside id="git"><h2>Git</h2><ul><li><a href="https://github.com/darkwiiplayer">Github</a></li><li><a href="https://git.but.gay/darkwiiplayer">Gitea</a></li></ul></aside><aside id="platforms"><h2>Federated cloud</h2><p>darkwiiplayer@cloud.but.gay</p></aside></grid-box></footer></body></html>
