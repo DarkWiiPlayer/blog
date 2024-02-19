@@ -23,6 +23,7 @@ slots.head
 slots.head script type: 'module', src: "/javascript/LocalDate.js"
 slots.head script type: 'module', src: "/javascript/BlogPost.js"
 
-return main
+return div
+	class: "content-width"
 	* h1 "Blog Posts"
 	* [blogPost post p for p in *posts]
