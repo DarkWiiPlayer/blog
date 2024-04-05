@@ -40,8 +40,8 @@ task.deploy {
 			find . | treh -c
 			git add --all
 			if git log -1 --format=%s | grep "$hash$"
-			then git commit --amend --no-edit
-			else git commit -m "Update blog to $hash"
+			then git commit --no-verify --amend --no-edit
+			else git commit --no-verify -m "Update blog to $hash"
 			fi
 			git push --force origin page
 		cd ../
