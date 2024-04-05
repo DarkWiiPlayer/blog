@@ -49,7 +49,7 @@ for file in restia.utils.files(params.input, "^./posts/.*%.md$") do
 		post.head.tags = string.split(post.head.tags, "[%a-]+")
 	end
 
-	for key, tag in ipairs(post.head.tags) do
+	for key, tag in ipairs(post.head.tags or {}) do
 		post.head.tags[key] = string.lower(tag)
 	end
 

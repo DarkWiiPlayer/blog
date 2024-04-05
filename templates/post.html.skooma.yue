@@ -29,7 +29,7 @@ positions = (input, character) ->
 
 breadcrumb = (href) -> li a :href, href\match('[^/]+$'), tabindex: 0
 
-if src = post.head.cover_image
+if src := post.head.cover_image
 	slots.top pageHero cover: 60
 		* img :src, style: 'opacity: .4'
 		* h1(post.head.title, style: "view-transition-name: #{post.head.slug}")
