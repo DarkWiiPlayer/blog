@@ -1,0 +1,111 @@
+<html lang="english"><head><link href="/feeds/all.rss.xml" title="RSS 2.0 feed" rel="alternate" type="application/rss+xml"><link href="/feeds/all.atom.xml" title="Atom feed" rel="alternate" type="application/atom+xml"><meta content="same-origin" name="view-transition"><meta charset="UTF-8"><meta content="width=device-width" name="viewport"><link href="https://darkwiiplayer.github.io/css/all.css" rel="stylesheet"><link href="https://darkwiiplayer.github.io/css/schemes/talia.css" rel="stylesheet"><link href="/css/site.css" rel="stylesheet"><style>	@import url('https://fonts.googleapis.com/css2?family=Raleway&display=swap');
+	@import url('https://fonts.googleapis.com/css2?family=Open+Sans&display=swap');
+	@import url('https://fonts.googleapis.com/css2?family=Fira+Code&display=swap');
+
+	:root { container: style; }
+	:is(h1, h2, h3, h4, h5, h6) { font-family: "Raleway", sans-serif; }
+	:is(code, kbd, var, samp) { font-family: "Fira Code", monospace; }
+	.badge { font-family: "Open Sans", sans-serif }
+</style><title>Shit, I didn't mean to commit that!</title><meta content="Talia" name="author"><meta content="2024-04-05" property="article:published_time"><meta content="https://tech.lgbt/@darkwiiplayer" property="article:author"><meta content="Shit, I didn't mean to commit that!" property="og:title"><meta content="Talia's Blog" property="og:site_name"><meta content="We've all been there. We changed something that wasn't meant to get pushed, forgot about it, and accidentally committed & pushed it. Here's a neat trick to help avoid this." property="og:description"><meta content="article" property="og:type"><meta content="Talia" property="og:article:author"><meta content="git" property="og:article:tag"><meta content="shell" property="og:article:tag"><meta content="beginner" property="og:article:tag"></head><body><header class="sticky" style="view-transition-name: header"><h1>Talia's Blog</h1><nav class="right bar"><ul><li><a href="/">Home</a></li></ul></nav></header><main><article><h1 style="view-transition-name: shit_i_didnt_mean_to_commit_that">Shit, I didn't mean to commit that!</h1><div class="summary" tabindex="0">We've all been there. We changed something that wasn't meant to get pushed, forgot about it, and accidentally committed & pushed it. Here's a neat trick to help avoid this.</div><vertical-spacer></vertical-spacer><flex-row style="justify-content: flex-start" gap=".4"><post-tag><a href="/?tag=git" style="--color: rgb(165, 89, 89)" tabindex="0">git</a></post-tag><post-tag><a href="/?tag=shell" style="--color: rgb(156, 165, 89)" tabindex="0">shell</a></post-tag><post-tag><a href="/?tag=beginner" style="--color: rgb(156, 89, 165)" tabindex="0">beginner</a></post-tag></flex-row><vertical-spacer></vertical-spacer><nav class="breadcrumbs"><ul><li><a href="/blog/" tabindex="0">Blog</a></li><li><a tabindex="0" href="/2024">2024</a></li><li><a tabindex="0" href="/2024/04">04</a></li><li><a tabindex="0" href="/2024/04/05">05</a></li><li class="active">Shit, I didn't mean to commit that!</li></ul></nav><vertical-spacer></vertical-spacer><aside class="box"><b>Hey there!</b><p>		This blog doesn't use any tracking. When you open this page, I don't see
+		a number going up anywhere, so if you like this post, please consider
+		letting me know on <a href="https://tech.lgbt/@darkwiiplayer">the fediverse</a>!
+		This is also the best way of giving any other feedback on my blog posts.
+	</p><p><i>Thank you.</i></p></aside><h2>We've all been there 😖</h2>
+<p>When working on a project, specially in a team, and doubly so if there's other things that occasionally distract us from the task at hand, it is easy to commit changes that were meant to stay local.</p>
+<p>One may add a line that wipes a database at the start of an import for a tighter testing cycle, add debug outputs, etc.</p>
+<p>As life gets in the way, we take breaks, coworkers want other things from us, or we simply have our head filled with other aspects of the task, one can easily forget to remove these things before committing and pushing.</p>
+<h2>But it doesn't have to be this way 😮</h2>
+<p>Git hooks can help us with this. We just have to think up a way for us to mark changes that should never make it into a commit and write a hook to detect them.</p>
+<p>Here, I will use the string &quot;nocommit&quot;: if this appears anywhere in the changes I'm going to commit, I want git to reject my commit and tell me where it was found.</p>
+<h2>Let's get to work 😀</h2>
+<p>Writing git hooks is surprisingly easy: They're really just shell scripts that run in the project directory. Some get arguments, but we don't need them here.</p>
+<p>We care about the <code>pre-commit</code> hook. To enable it, just write a file to <code>.git/hooks/pre-commit</code> in your git repository and set its executable permission. To make it reject all commits, put this in the file:</p>
+<pre><code class="language-sh">#/bin/sh
+exit 1
+</code></pre>
+<p>To accept all commits, just have it return 0 instead.</p>
+<p>Now, to get to the interesting part:</p>
+<h3>Get our files 📂</h3>
+<p>For starters, we'll need access to the files as they will get committed. We don't want our entire commit to fail if a there's a file with a <code>nocommit</code> mark that isn't even going to get committed.</p>
+<p>Luckily, this is relatively easy to achieve. We can check out the index of the repository into a temporary directory like this:</p>
+<pre><code class="language-sh">tmp_dir=$(mktemp -p /dev/shm -d -t &quot;git-index.XXXX&quot;)
+git checkout-index -a --prefix=&quot;$tmp_dir&quot;/
+</code></pre>
+<p>The first command just gives us a temporary directory in <code>/dev/shm</code> and makes sure it is unique.</p>
+<p>The second command checks out the entire index into this temporary directory.</p>
+<p>But there isn't really much of a point in checking every file in the repository; we can just limit our search go the files that have been modified. To list these, we can use this command:</p>
+<pre><code class="language-sh">git status --porcelain | cut --bytes 4-
+</code></pre>
+<h3>Get our marks 🔖</h3>
+<p>Now comes the juicy part. Having our files, we want to scan them for a keyword. For better readability, we can put this part in a function:</p>
+<pre><code class="language-sh">get_marks() {
+	git status --porcelain | cut --bytes 4- | while read file
+	do
+		if [ -e &quot;$tmp_dir/$file&quot; ]
+		then
+			grep -n -i nocommit &quot;$tmp_dir/$file&quot; | sed &quot;s/:/ /&quot; | while read line
+			do
+				echo &quot;$file:$line&quot;
+			done
+		fi
+	done
+}
+</code></pre>
+<p>We start with listing the files as described above, then pipe that into a <code>sh</code> while loop that reads each individual line.</p>
+<p>We then use the <code>grep</code> command to search for &quot;nocommit&quot; in our target <code>$file</code> in the <code>$tmp_dir</code> directory, ignoring case (<code>-i</code>) and prepending the line number (<code>-n</code>). The result then gets piped though <code>sed</code> to turn the single colon <code>:</code> separating the line number from the line into a normal space. This last part is just a matter of taste, honestly.</p>
+<p>The results are then again piped into another loop, which simply prints the file name and the line. The resulting lines would look something like this:</p>
+<pre><code>path/to/file.js:14 console.log(&quot;I hate my job&quot;) // nocommit
+</code></pre>
+<h3>Evaluate the results 🔍</h3>
+<p>Now that we can extract the lines we care about, it's time to decide if the commit is good or not.</p>
+<p>We can do this with a simple <code>if</code>:</p>
+<pre><code class="language-sh">
+marks=$(get_marks)
+if [ -n &quot;$marks&quot; ]
+then
+	/bin/echo -e &quot;\x1b[31m'no$THEWORD' mark(s) found:\x1b[0m&quot;
+	echo $marks
+	status=1
+else
+	status=0
+fi
+</code></pre>
+<p>First we call our function to get the marks and save its output into a <code>marks</code> variable. If it's empty, we set a status variable to 0. We can't exit yet because we still need to clean up after ourselves. If <code>marks</code> isn't empty, we print a warning, then the marks, and set our status to 1.</p>
+<h3>Cleanup 🧹</h3>
+<p>After this we're basically done with the important part; but the temporary directory is still around and we should delete it now that we're done with it. After that, we can just exit with the status we decided on earlier.</p>
+<pre><code class="language-sh">rm -r $tmp_dir
+exit $status
+</code></pre>
+<h2>And there you have it 😁</h2>
+<p>Here's the finished script. I made one more modification to make sure the script itself can actually be committed without problem 😅</p>
+<pre><code class="language-sh">#!/bin/sh
+
+export THEWORD=commit
+
+tmp_dir=$(mktemp -p /dev/shm -d -t &quot;git-index.XXXX&quot;)
+git checkout-index -a --prefix=&quot;$tmp_dir&quot;/
+
+get_marks() {
+	git status --porcelain | cut --bytes 4- | while read file
+	do
+		grep -n -i no$THEWORD &quot;$tmp_dir/$file&quot; | sed &quot;s/:/ /&quot; | while read line
+		do
+			echo &quot;$file:$line&quot;
+		done
+	done
+}
+
+marks=$(get_marks)
+if [ -n &quot;$marks&quot; ]
+then
+	/bin/echo -e &quot;\x1b[31m'no$THEWORD' mark(s) found:\x1b[0m&quot;
+	echo $marks
+	status=1
+else
+	status=0
+fi
+
+rm -r $tmp_dir
+exit $status
+</code></pre>
+</article></main><footer class="box"><grid-box class="content-padding" columns="3"><aside id="contact"><h2>Social</h2><p>Got feedback? — Tag me on fedi!<br><a rel="me" href="https://tech.lgbt/@darkwiiplayer">@darkwiiplayer@tech.lgbt</a></p></aside><aside id="git"><h2>Git</h2><ul><li><a href="https://github.com/darkwiiplayer">Github</a></li><li><a href="https://git.but.gay/darkwiiplayer">Gitea</a></li></ul></aside><aside id="platforms"><h2>Federated cloud</h2><p>darkwiiplayer@cloud.but.gay</p></aside></grid-box></footer></body></html>

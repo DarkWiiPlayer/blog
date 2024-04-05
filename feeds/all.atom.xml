@@ -1,4 +1,102 @@
-<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom"><id>https://blog.but.gay/</id><title>Talia's Blog1</title><link rel="alternate" type="text/html" href="https://blog.but.gay/"/><link rel="self" href="https://blog.but.gay/feeds/all.atom.xml"/><updated>2023-10-26T10:54:16Z</updated><author><name>Talia</name><uri>https://tech.lgbt/@darkwiiplayer</uri></author><generator uri="https://github.com/darkwiiplayer/blog">Home-grown SSG</generator><entry><id>https://blog.but.gay/2023/09/29/extracting_a_js_library_from_a_snippets_repository.html</id><title>Extracting a JS library from a snippets repository</title><updated>2023-09-29T12:00:00Z</updated><summary>A short explanation of how I extracted a single JavaScript file into its own repository from a bigger collection of snippets and mini-libraries, keeping the file's commit history but scrubbing irrelevant commits and other files from the repository.</summary><content type="html">&lt;h2&gt;Context&lt;/h2&gt;
+<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom"><id>https://blog.but.gay/</id><title>Talia's Blog1</title><link rel="alternate" href="https://blog.but.gay/" type="text/html"/><link href="https://blog.but.gay/feeds/all.atom.xml" rel="self"/><updated>2024-04-05T17:57:28Z</updated><author><name>Talia</name><uri>https://tech.lgbt/@darkwiiplayer</uri></author><generator uri="https://github.com/darkwiiplayer/blog">Home-grown SSG</generator><entry><id>https://blog.but.gay/2024/04/05/shit_i_didnt_mean_to_commit_that.html</id><title>Shit, I didn't mean to commit that!</title><updated>2024-04-05T12:00:00Z</updated><summary>We've all been there. We changed something that wasn't meant to get pushed, forgot about it, and accidentally committed & pushed it. Here's a neat trick to help avoid this.</summary><content type="html">&lt;h2&gt;We've all been there 😖&lt;/h2&gt;
+&lt;p&gt;When working on a project, specially in a team, and doubly so if there's other things that occasionally distract us from the task at hand, it is easy to commit changes that were meant to stay local.&lt;/p&gt;
+&lt;p&gt;One may add a line that wipes a database at the start of an import for a tighter testing cycle, add debug outputs, etc.&lt;/p&gt;
+&lt;p&gt;As life gets in the way, we take breaks, coworkers want other things from us, or we simply have our head filled with other aspects of the task, one can easily forget to remove these things before committing and pushing.&lt;/p&gt;
+&lt;h2&gt;But it doesn't have to be this way 😮&lt;/h2&gt;
+&lt;p&gt;Git hooks can help us with this. We just have to think up a way for us to mark changes that should never make it into a commit and write a hook to detect them.&lt;/p&gt;
+&lt;p&gt;Here, I will use the string &quot;nocommit&quot;: if this appears anywhere in the changes I'm going to commit, I want git to reject my commit and tell me where it was found.&lt;/p&gt;
+&lt;h2&gt;Let's get to work 😀&lt;/h2&gt;
+&lt;p&gt;Writing git hooks is surprisingly easy: They're really just shell scripts that run in the project directory. Some get arguments, but we don't need them here.&lt;/p&gt;
+&lt;p&gt;We care about the &lt;code&gt;pre-commit&lt;/code&gt; hook. To enable it, just write a file to &lt;code&gt;.git/hooks/pre-commit&lt;/code&gt; in your git repository and set its executable permission. To make it reject all commits, put this in the file:&lt;/p&gt;
+&lt;pre&gt;&lt;code class="language-sh"&gt;#/bin/sh
+exit 1
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;To accept all commits, just have it return 0 instead.&lt;/p&gt;
+&lt;p&gt;Now, to get to the interesting part:&lt;/p&gt;
+&lt;h3&gt;Get our files 📂&lt;/h3&gt;
+&lt;p&gt;For starters, we'll need access to the files as they will get committed. We don't want our entire commit to fail if a there's a file with a &lt;code&gt;nocommit&lt;/code&gt; mark that isn't even going to get committed.&lt;/p&gt;
+&lt;p&gt;Luckily, this is relatively easy to achieve. We can check out the index of the repository into a temporary directory like this:&lt;/p&gt;
+&lt;pre&gt;&lt;code class="language-sh"&gt;tmp_dir=$(mktemp -p /dev/shm -d -t &quot;git-index.XXXX&quot;)
+git checkout-index -a --prefix=&quot;$tmp_dir&quot;/
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;The first command just gives us a temporary directory in &lt;code&gt;/dev/shm&lt;/code&gt; and makes sure it is unique.&lt;/p&gt;
+&lt;p&gt;The second command checks out the entire index into this temporary directory.&lt;/p&gt;
+&lt;p&gt;But there isn't really much of a point in checking every file in the repository; we can just limit our search go the files that have been modified. To list these, we can use this command:&lt;/p&gt;
+&lt;pre&gt;&lt;code class="language-sh"&gt;git status --porcelain | cut --bytes 4-
+&lt;/code&gt;&lt;/pre&gt;
+&lt;h3&gt;Get our marks 🔖&lt;/h3&gt;
+&lt;p&gt;Now comes the juicy part. Having our files, we want to scan them for a keyword. For better readability, we can put this part in a function:&lt;/p&gt;
+&lt;pre&gt;&lt;code class="language-sh"&gt;get_marks() {
+	git status --porcelain | cut --bytes 4- | while read file
+	do
+		if [ -e &quot;$tmp_dir/$file&quot; ]
+		then
+			grep -n -i nocommit &quot;$tmp_dir/$file&quot; | sed &quot;s/:/ /&quot; | while read line
+			do
+				echo &quot;$file:$line&quot;
+			done
+		fi
+	done
+}
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;We start with listing the files as described above, then pipe that into a &lt;code&gt;sh&lt;/code&gt; while loop that reads each individual line.&lt;/p&gt;
+&lt;p&gt;We then use the &lt;code&gt;grep&lt;/code&gt; command to search for &quot;nocommit&quot; in our target &lt;code&gt;$file&lt;/code&gt; in the &lt;code&gt;$tmp_dir&lt;/code&gt; directory, ignoring case (&lt;code&gt;-i&lt;/code&gt;) and prepending the line number (&lt;code&gt;-n&lt;/code&gt;). The result then gets piped though &lt;code&gt;sed&lt;/code&gt; to turn the single colon &lt;code&gt;:&lt;/code&gt; separating the line number from the line into a normal space. This last part is just a matter of taste, honestly.&lt;/p&gt;
+&lt;p&gt;The results are then again piped into another loop, which simply prints the file name and the line. The resulting lines would look something like this:&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;path/to/file.js:14 console.log(&quot;I hate my job&quot;) // nocommit
+&lt;/code&gt;&lt;/pre&gt;
+&lt;h3&gt;Evaluate the results 🔍&lt;/h3&gt;
+&lt;p&gt;Now that we can extract the lines we care about, it's time to decide if the commit is good or not.&lt;/p&gt;
+&lt;p&gt;We can do this with a simple &lt;code&gt;if&lt;/code&gt;:&lt;/p&gt;
+&lt;pre&gt;&lt;code class="language-sh"&gt;
+marks=$(get_marks)
+if [ -n &quot;$marks&quot; ]
+then
+	/bin/echo -e &quot;\x1b[31m'no$THEWORD' mark(s) found:\x1b[0m&quot;
+	echo $marks
+	status=1
+else
+	status=0
+fi
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;First we call our function to get the marks and save its output into a &lt;code&gt;marks&lt;/code&gt; variable. If it's empty, we set a status variable to 0. We can't exit yet because we still need to clean up after ourselves. If &lt;code&gt;marks&lt;/code&gt; isn't empty, we print a warning, then the marks, and set our status to 1.&lt;/p&gt;
+&lt;h3&gt;Cleanup 🧹&lt;/h3&gt;
+&lt;p&gt;After this we're basically done with the important part; but the temporary directory is still around and we should delete it now that we're done with it. After that, we can just exit with the status we decided on earlier.&lt;/p&gt;
+&lt;pre&gt;&lt;code class="language-sh"&gt;rm -r $tmp_dir
+exit $status
+&lt;/code&gt;&lt;/pre&gt;
+&lt;h2&gt;And there you have it 😁&lt;/h2&gt;
+&lt;p&gt;Here's the finished script. I made one more modification to make sure the script itself can actually be committed without problem 😅&lt;/p&gt;
+&lt;pre&gt;&lt;code class="language-sh"&gt;#!/bin/sh
+
+export THEWORD=commit
+
+tmp_dir=$(mktemp -p /dev/shm -d -t &quot;git-index.XXXX&quot;)
+git checkout-index -a --prefix=&quot;$tmp_dir&quot;/
+
+get_marks() {
+	git status --porcelain | cut --bytes 4- | while read file
+	do
+		grep -n -i no$THEWORD &quot;$tmp_dir/$file&quot; | sed &quot;s/:/ /&quot; | while read line
+		do
+			echo &quot;$file:$line&quot;
+		done
+	done
+}
+
+marks=$(get_marks)
+if [ -n &quot;$marks&quot; ]
+then
+	/bin/echo -e &quot;\x1b[31m'no$THEWORD' mark(s) found:\x1b[0m&quot;
+	echo $marks
+	status=1
+else
+	status=0
+fi
+
+rm -r $tmp_dir
+exit $status
+&lt;/code&gt;&lt;/pre&gt;
+</content><link href="https://blog.but.gay/2024/04/05/shit_i_didnt_mean_to_commit_that.html"/><published>2024-04-05T12:00:00Z</published><category term="git"/><category term="shell"/><category term="beginner"/></entry><entry><id>https://blog.but.gay/2023/09/29/extracting_a_js_library_from_a_snippets_repository.html</id><title>Extracting a JS library from a snippets repository</title><updated>2023-09-29T12:00:00Z</updated><summary>A short explanation of how I extracted a single JavaScript file into its own repository from a bigger collection of snippets and mini-libraries, keeping the file's commit history but scrubbing irrelevant commits and other files from the repository.</summary><content type="html">&lt;h2&gt;Context&lt;/h2&gt;
 &lt;p&gt;A couple of years ago, I created a repository for all those JavaScript snippets and files that were were too small to turn into their own project, and could just be copy-pasted into wherever they were needed, or imported via services like jsdelivr directly through github.&lt;/p&gt;
 &lt;p&gt;As some of these files grew in size and scope, this approach started to be less and less convenient, and eventually it became clear that to continue to use and maintain these bigger libraries, it would be better to just migrate them into their own repository.&lt;/p&gt;
 &lt;p&gt;In principle, it would have been &lt;em&gt;good enough&lt;/em&gt; to simply copy the files into a new repo, check them in with an &quot;Initial Commit 🎉&quot; and refer to the collection repository where their original development history resides.&lt;/p&gt;
