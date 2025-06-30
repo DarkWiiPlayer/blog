@@ -7,11 +7,11 @@ local string = require 'stringplus'
 
 local function parsedate(date)
 	local year, month, day = date:match("(%d+)%-(%d+)%-(%d+)")
-  return os.time {
-    year = tonumber(year) or error("Invalid date string: " .. date);
-    month = tonumber(month) or error("Invalid date string: " .. date);
-    day = tonumber(day) or error("Invalid date string: " .. date);
-  }
+	return os.time {
+		year = tonumber(year) or error("Invalid date string: " .. date);
+		month = tonumber(month) or error("Invalid date string: " .. date);
+		day = tonumber(day) or error("Invalid date string: " .. date);
+	}
 end
 
 local validate_head do
@@ -27,11 +27,18 @@ end
 
 local function read_post(file)
 	local content = io.open(file):read("*a")
-	local head, body = restia.utils.frontmatter(content)
-	return {
-		head = head and yaml.load(head) or {};
-		body = cmark.render_html(cmark.parse_document(body, #body, cmark.OPT_DEFAULT), cmark.OPT_DEFAULT + cmark.OPT_UNSAFE);
-	}
+	local head_text, body_text = restia.utils.frontmatter(content)
+
+	local head = head_text and yaml.load(head_text) or {}
+	local body = cmark.render_html(cmark.parse_document(body_text, #body_text, cmark.OPT_DEFAULT), cmark.OPT_DEFAULT + cmark.OPT_UNSAFE)
+
+	local cover_image = file:gsub("md$", "jpg")
+	if io.open(cover_image) then
+		head.cover_image = "/images/" .. cover_image:match("[^/]+$")
+		print(head.cover_image)
+	end
+
+	return { head = head, body = body }
 end
 
 local posts = {}
