@@ -10,15 +10,22 @@ local atom = require 'feed.atom'
 local paramparser = require 'paramparser'
 local params = paramparser(...)
 package.loaded.params = params
-local config = require 'config'
 local pages = require 'pages'
 local templates = require 'templates'
 local posts = require 'posts'
 
-local tree = {}
+local output_tree = {}
 
-for i, path in ipairs(params.copy) do
-	scaffold.deep(tree, path, scaffold.readdir(path))
+for name, content in pairs(scaffold.readdir("static")) do
+  scaffold.deep(output_tree, name, content)
+end
+
+local function is_image(name)
+  if name:downcase():match("^.jpg$") then
+    return true
+  else
+    return false
+  end
 end
 
 local function render(name, data)
@@ -30,17 +37,37 @@ local function page(name, data)
 end
 
 -- Render Posts
-for idx, post in ipairs(posts) do
+for _, post in ipairs(posts) do
 	local body = tostring(render("post", post))
 
-	scaffold.deep(tree, post.path, body)
+	scaffold.deep(output_tree, post.path, body)
 end
 
-scaffold.deep(tree, "feeds/all.rss.xml", rss(posts))
-scaffold.deep(tree, "feeds/all.atom.xml", atom(posts))
+scaffold.deep(output_tree, "feeds/all.rss.xml", rss(posts))
+scaffold.deep(output_tree, "feeds/all.atom.xml", atom(posts))
 
 if params.delete then
 	restia.utils.delete(params.output)
+end
+
+do -- Copy blog images
+  local function iter_files(tree, callback)
+    if getmetatable(tree) == scaffold.lazy then
+      callback(tree)
+    else
+      for _, node in pairs(tree) do
+        iter_files(node, callback)
+      end
+    end
+  end
+
+  iter_files(scaffold.readdir("posts", {files = "lazy"}), function(file)
+    local name = file.path:match("[^/]+$")
+    if name:find(".jpg$") then
+      local path = "/images/" .. name
+      scaffold.deep(output_tree, path, file)
+    end
+  end)
 end
 
 local function transform(tab)
@@ -53,7 +80,7 @@ end
 local function drop() return true, nil end
 
 -- Generate Post Metadata
-tree["posts.json"] = json.encode(
+output_tree["posts.json"] = json.encode(
 	fun
 	.iter(posts)
 	:map(transform {
@@ -63,10 +90,10 @@ tree["posts.json"] = json.encode(
 	:totable()
 )
 
-tree["index.html"] = tostring(page("index", tree["posts.json"]))
+output_tree["index.html"] = tostring(page("index", output_tree["posts.json"]))
 
 if params.cname then
-	tree.CNAME = params.cname
+	output_tree.CNAME = params.cname
 end
 
-scaffold.builddir(params.output, tree)
+scaffold.builddir(params.output, output_tree)

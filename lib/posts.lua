@@ -7,11 +7,11 @@ local string = require 'stringplus'
 
 local function parsedate(date)
 	local year, month, day = date:match("(%d+)%-(%d+)%-(%d+)")
-	return os.time {
-		year = tonumber(year);
-		month = tonumber(month);
-		day = tonumber(day);
-	}
+  return os.time {
+    year = tonumber(year) or error("Invalid date string: " .. date);
+    month = tonumber(month) or error("Invalid date string: " .. date);
+    day = tonumber(day) or error("Invalid date string: " .. date);
+  }
 end
 
 local validate_head do

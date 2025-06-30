@@ -41,7 +41,7 @@ else
 slots.summary div post.head.description, class: "summary", tabindex: 0
 slots.summary verticalSpacer
 
-slots.banner aside class: { 'box' }
+slots.banner aside class: { 'floating box' }, stripe: "rebeccapurple"
 	* b "Hey there!"
 	* p raw [[
 		This blog doesn't use any tracking. When you open this page, I don't see

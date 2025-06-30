@@ -19,7 +19,6 @@ return function(tags)
 		end
 		return {
 			html.flexRow(list);
-			html.verticalSpacer();
 		}
 	end
 end

@@ -25,7 +25,7 @@ task.build {
 		[[
 			export LUA_PATH='%s'
 			export LUA_CPATH='%s'
-			lua build.lua --copy css --copy javascript --output blog --cname blog.but.gay
+			lua build.lua --output blog --cname blog.but.gay
 		]],
 		path, cpath
 	)

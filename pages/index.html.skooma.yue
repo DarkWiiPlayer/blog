@@ -7,9 +7,9 @@ post = =>
 	color = table.concat({rgbstr.bytes(@head.tags[1], 16, .3, .5)}, " ")
 	flexColumn class: "info box", style: "--color: rgb(#{color})"
 		* h2 a(@head.title, href: @head.uri), style: "view-transition-name: #{@head.slug}"
+		* small time is: 'local-date', datetime: @head.date, @head.date
+		* p @head.description
 		* tags(@head.tags)
-		* time is: 'local-date', datetime: @head.date, @head.date
-		* @head.description
 
 slots.head title "Talia's Blog"
 
@@ -23,7 +23,7 @@ slots.head
 slots.head script type: 'module', src: "/javascript/LocalDate.js"
 slots.head script type: 'module', src: "/javascript/BlogPost.js"
 
-return main
+return article
 	class: "content-width"
 	* h1 "Blog Posts"
 	* [blogPost post p for p in *posts]

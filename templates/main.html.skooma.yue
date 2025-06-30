@@ -2,18 +2,20 @@ import output from require 'params'
 import slotty from require 'skooma'
 import 'config'
 
+slots = slotty!
+
 styles = [[
 	@import url('https://fonts.googleapis.com/css2?family=Raleway&display=swap');
 	@import url('https://fonts.googleapis.com/css2?family=Open+Sans&display=swap');
 	@import url('https://fonts.googleapis.com/css2?family=Fira+Code&display=swap');
+
+	@view-transition { navigation: auto; }
 
 	:root { container: style; }
 	:is(h1, h2, h3, h4, h5, h6) { font-family: "Raleway", sans-serif; }
 	:is(code, kbd, var, samp) { font-family: "Fira Code", monospace; }
 	.badge { font-family: "Open Sans", sans-serif }
 ]]
-
-slots = slotty!
 
 slots.footer aside id: "contact"
 	* h2 "Social"
@@ -26,7 +28,7 @@ slots.footer aside id: "git"
 	* h2 "Git"
 	* ul
 		* li a "Github", href: "https://github.com/darkwiiplayer"
-		* li a "Gitea", href: "https://git.but.gay/darkwiiplayer"
+		* li a "Forgejo", href: "https://git.but.gay/darkwiiplayer"
 
 slots.footer aside id: "platforms"
 	* h2 "Federated cloud"
@@ -44,8 +46,6 @@ html
 		* meta name: "view-transition", content: "same-origin"
 		* meta charset: "UTF-8"
 		* meta name: "viewport", content: "width=device-width"
-		* css 'https://darkwiiplayer.github.io/css/all.css'
-		* css 'https://darkwiiplayer.github.io/css/schemes/talia.css'
 		* css "/css/site.css"
 		* style styles
 		* slots.head
@@ -54,7 +54,7 @@ html
 		* slots.top
 		* header class: 'sticky', style: "view-transition-name: header"
 			* h1 "Talia's Blog"
-			* nav { class: 'right bar' }
+			* nav { class: 'right underlined bar' }
 				* ul li a "Home", href: "/"
 		* main
 			* content slots, data

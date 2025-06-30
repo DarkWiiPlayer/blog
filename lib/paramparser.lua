@@ -6,7 +6,6 @@ return function(...)
 	local parse = arrr {
 		{ "Output directory", "--output", "-o", 'directory' };
 		{ "Input directory", "--input", "-i", 'directory' };
-		{ "Copy directory", "--copy", "-c", 'directory', 'repeatable' };
 		{ "Include unpublished posts", "--unpublished", "-u", nil };
 		{ "Set the github pages CNAME", "--cname", nil, 'domain' };
 		{ "Delete everything first", "--delete", "-d" };

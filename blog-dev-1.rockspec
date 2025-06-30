@@ -15,7 +15,7 @@ dependencies = {
 	"lua-cjson ~> 2.1",
 	"restia",
 	"rgbstr",
-	"scaffold ~> 1.1",
+	"scaffold ~> 1.3.1",
 	"shapeshift ~> 1.1",
 	"skooma",
 	"streamcsv ~> 1.1",
