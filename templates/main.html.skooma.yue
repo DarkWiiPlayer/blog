@@ -60,5 +60,5 @@ html
 			* content slots, data
 		* ->
 			footer class: "box"
-				* gridBox columns: math.min(#slots.footer, 3), class: 'content-padding'
+				* gridBox columns: math.min(#slots.footer, 3), class: 'content-padding', center: true
 					* slots.footer
