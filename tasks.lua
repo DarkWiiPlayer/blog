@@ -8,7 +8,17 @@ local path = table.concat({
 	";",
 }, ";")
 
-local cpath = path:gsub(".lua", ".so"):gsub("/share/", "/lib/")
+local cpath = table.concat({
+	"lua_modules/lib/lua/5.4/?.so",
+	"lua_modules/lib/lua/5.4/?/init.so",
+	";",
+}, ";")
+
+task.setup {
+	description = "Sets up directories and dependencies";
+	"mkdir -p lua_modules .luarocks";
+	"luarocks install --only-deps *.rockspec";
+}
 
 task.clean {
 	description = "Removes local rocks";
