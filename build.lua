@@ -63,7 +63,7 @@ do -- Copy blog images
 
   iter_files(scaffold.readdir("posts", {files = "lazy"}), function(file)
     local name = file.path:match("[^/]+$")
-    if name:find(".jpg$") then
+    if name:find(".jpg$") or name:find(".svg$") then
       local path = "/images/" .. name
       scaffold.deep(output_tree, path, file)
     end
