@@ -22,6 +22,7 @@ slots.head
 	* meta property: "og:description", content: post.head.description
 	* meta property: "og:type", content: "article"
 	* meta property: "og:article:author", content: "Talia"
+	* meta property: "fediverse:creator", content: "@darkwiiplayer@tech.lgbt"
 	* [ meta property: "og:article:tag", content: tag for tag in *post.head.tags ]
 
 positions = (input, character) ->
