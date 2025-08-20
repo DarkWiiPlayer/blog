@@ -34,8 +34,7 @@ local function read_post(file)
 
 	local cover_image = file:gsub("md$", "jpg")
 	if io.open(cover_image) then
-		head.cover_image = "/images/" .. cover_image:match("[^/]+$")
-		print(head.cover_image)
+		head.cover_image = "/images/" .. cover_image:match("[^/]+$"):gsub(" ", "%%20")
 	end
 
 	return { head = head, body = body }
