@@ -1,5 +1,5 @@
-@import url('https://cdn.jsdelivr.net/gh/darkwiiplayer/css@main/all.css') layer(framework);
-@import url('https://cdn.jsdelivr.net/gh/darkwiiplayer/css@main/drop-in.css') layer(framework);
+@import url('https://cdn.jsdelivr.net/gh/darkwiiplayer/css@3db9f6c/all.css') layer(framework);
+@import url('https://cdn.jsdelivr.net/gh/darkwiiplayer/css@3db9f6c/drop-in.css') layer(framework);
 
 blog-post[hidden] {
 	display: none;
