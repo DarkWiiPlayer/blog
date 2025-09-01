@@ -35,7 +35,8 @@ if src := post.head.cover_image
 		* img :src, style: 'opacity: .4', class: "parallax"
 		* flexColumn
 			* class: "parallax"
-			* h1(post.head.title, style: "view-transition-name: #{post.head.slug}")
+			* hgroup
+				* h1(post.head.title, style: "view-transition-name: #{post.head.slug}")
 	slots.head
 		* meta property: "og:image", content: src
 else
