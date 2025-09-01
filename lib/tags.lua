@@ -13,7 +13,7 @@ end
 
 return function(tags)
 	if tags then
-		local list = { gap=".4", style="justify-content: flex-start" }
+		local list = { gap=".4", style="justify-content: flex-start", wrap = true }
 		for _, name in ipairs(tags) do
 			table.insert(list, tag(name))
 		end
