@@ -14,6 +14,10 @@ local cpath = table.concat({
 	";",
 }, ";")
 
+task.robots {
+	"curl https://www.ditig.com/robots.txt > static/robots.txt";
+}
+
 task.setup {
 	description = "Sets up directories and dependencies";
 	"mkdir -p lua_modules .luarocks";
@@ -27,6 +31,7 @@ task.clean {
 
 task.build {
 	description = "Builds the page";
+	depends = "robots";
 	'mkdir -p .luarocks lua_modules';
 	'luarocks install --only-deps *.rockspec';
 	'tup';

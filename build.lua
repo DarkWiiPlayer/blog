@@ -1,4 +1,5 @@
 local fun = require 'fun'
+local xml = require "skooma.xml"
 local json = require 'cjson'
 local restia = require 'restia'
 local scaffold = require 'scaffold'
@@ -71,8 +72,9 @@ do -- Copy blog images
 end
 
 local function transform(tab)
+	local tr = shapeshift.table(tab, "keep")
 	return function(data)
-		local success, result = shapeshift.table(tab, "keep")(data)
+		local success, result = tr(data)
 		return result
 	end
 end
@@ -89,6 +91,19 @@ output_tree["posts.json"] = json.encode(
 	})
 	:totable()
 )
+
+local root = "https://blog.but.gay"
+-- Generate sitemap
+output_tree["sitemap.xml"] = xml.urlset {
+	xmlns="http://www.sitemaps.org/schemas/sitemap/0.9";
+	fun.iter(posts)
+	:map(function(post)
+		return xml.url {
+			xml.loc(root .. post.path);
+			xml.lastmod(post.head.date);
+		}
+	end):totable()
+}:render()
 
 output_tree["index.html"] = tostring(page("index", output_tree["posts.json"]))
 
