@@ -46,6 +46,7 @@ html
 		* meta name: "view-transition", content: "same-origin"
 		* meta charset: "UTF-8"
 		* meta name: "viewport", content: "width=device-width"
+		* meta name: "msvalidate.01", content: "5ED2DB717786D7F64597B673ECFC7412" -- 🙄
 		* css "/css/site.css"
 		* style styles
 		* slots.head
