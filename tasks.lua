@@ -58,7 +58,7 @@ task.deploy {
 			then git commit --no-verify --amend --no-edit
 			else git commit --no-verify -m "Update blog to $hash"
 			fi
-			git push --force origin page
+			git push --force github page
 		cd ../
 		git stash pop || true
 	]];
