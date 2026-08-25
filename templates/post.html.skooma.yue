@@ -47,12 +47,12 @@ slots.summary verticalSpacer
 
 slots.banner aside class: { 'floating box' }, stripe: "rebeccapurple"
 	* b "Hey there!"
-	* p raw [[
+	* p raw "
 		This blog doesn't use any tracking. When you open this page, I don't see
 		a number going up anywhere, so if you like this post, please consider
-		letting me know on <a href="https://tech.lgbt/@darkwiiplayer">the fediverse</a>!
+		letting me know on <a href='#{post.head.fediverse}'>the fediverse</a>!
 		This is also the best way of giving any other feedback on my blog posts.
-	]]
+	"
 	* p i "Thank you."
 
 return (=>@)

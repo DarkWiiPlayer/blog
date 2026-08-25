@@ -59,10 +59,16 @@ for file in restia.utils.files(params.input, "^./posts/.*%.md$") do
 		post.head.tags[key] = string.lower(tag)
 	end
 
-	post.head.slug = post.head.title
+	if not post.head.slug then
+		post.head.slug = post.head.title
 		:gsub(' ', '_')
 		:lower()
 		:gsub('[^a-z0-9-_]', '')
+	end
+
+	if not post.head.fediverse then
+		post.head.fediverse = "https://tech.lgbt/@darkwiiplayer"
+	end
 
 	post.head.uri = string.format("/%s/%s.html", post.head.date:gsub("%-", "/"), post.head.slug)
 	post.path = post.head.uri
